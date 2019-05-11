@@ -1,0 +1,26 @@
+Package: expstudies
+Title: Calculate Exposures, Assign Records to Intervals
+Version: 0.0.1
+Authors@R: 
+    person(given = "Matthew", family = "Caseres", email = "matthewcaseres@outlook.com",
+    role = c("aut", "cre"))
+Description: Creation of an exposure table with rows for policy-intervals from a table
+    with a unique policy number key and beginning and ending dates for each policy. 
+    Methods for assigning supplemental data containing dates and policy numbers
+    to the corresponding interval from the created exposures table. 
+Depends: R (>= 3.1.0)
+Imports: 
+    magrittr,
+    dplyr,
+    lubridate,
+    Rcpp
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+LinkingTo: 
+    Rcpp
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
