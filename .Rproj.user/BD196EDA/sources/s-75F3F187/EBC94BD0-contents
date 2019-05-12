@@ -1,0 +1,132 @@
+---
+title: "How to use expstudies"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{expstudies_intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The expstudies package is meant to make analyzing life experience data easier. How to use the package is best shown through example, so load up expstudies.
+
+```{r setup}
+library(expstudies)
+```
+You will need to be able to manipulate data frames to effectively work with this package. I use dplyr from the tidyverse for this. We load dplyr along with magrittr for the "%>%" operator.
+```{r message = FALSE}
+library(dplyr)
+library(magrittr)
+```
+
+##Making exposures from records
+Some synthetic data called "records" is included in the package. The data must have a "key", "start", and "end" column or the package will throw an error. It is also a requirement that the key column have no duplicate values. 
+```{r, results = "hide"}
+records
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(records)
+```
+The addExposures function creates rows for each policy year between the start and end date. We use 365.25 days as a full policy year. 
+```{r, results = "hide"}
+exposures <- addExposures(records)
+head(exposures)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures))
+```
+There is also an option for calculating monthly policy records in case we want to model skewness within policy years. This isn't the default because a single record could result in hundreds of rows in the exposures data frame.
+```{r, results = "hide"}
+exposures_PM <- addExposures(records, type = "PM")
+head(exposures_PM)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_PM))
+```
+
+#Mortality/Lapse studies
+Let's modify exposures in the year of death and add an indicator in the duration of death.
+```{r, results = "hide"}
+exposures_mod <- exposures %>% group_by(key) %>% mutate(exposure_mod = if_else(duration == max(duration), 1, exposure), death_cnt = if_else(duration == max(duration), 1, 0)) %>% ungroup()
+
+tail(exposures_mod, 4)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(tail(exposures_mod, 4))
+```
+Now we can aggregate by duration to calculate mortality rates.
+```{r, results = "hide"}
+exposures_mod %>% group_by(duration) %>% summarise(q = sum(death_cnt)/sum(exposure_mod))
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(exposures_mod %>% group_by(duration) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)))
+```
+##Adding additional information
+We can add additional information by joining on our key.
+```{r, results = "hide"}
+exposures_mod <- exposures_mod %>% inner_join(select(records, key, issue_age, gender), by = "key")
+head(exposures_mod)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_mod))
+```
+Now we can calculate mortality by attained age. Or by attained age and gender.
+```{r, results = "hide"}
+exposures_mod %>% mutate(attained_age = issue_age + duration - 1) %>% group_by(attained_age, gender) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)) %>% tail()
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(exposures_mod %>% mutate(attained_age = issue_age + duration - 1) %>% group_by(attained_age, gender) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)) %>% tail())
+```
+##Premium Pattern
+We assume that the user has dated transactions with a key that corresponds to the key in the record file. Some simulated transactions come with the package.
+```{r, results = "hide"}
+head(trans)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(trans))
+```
+The addStart function adds the start date of the appropriate exposure interval to the transactions. 
+```{r, results = "hide"}
+trans_with_interval <- addStart(exposures_PM, trans)
+head(trans_with_interval)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(trans_with_interval))
+```
+We can group and aggregate by key and start_int to get unique transaction rows corresponding to intervals in exposures_PM. 
+```{r, results = "hide"}
+trans_to_join <- trans_with_interval %>% group_by(start_int, key) %>% summarise(premium = sum(amt))
+head(trans_to_join)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(trans_to_join))
+```
+Then we can join this to the exposures using a left join without duplicating any exposures.
+```{r, results = "hide"}
+premium_study <- exposures_PM %>% left_join(trans_to_join, by = c("key", "start_int"))
+head(premium_study, 10)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(premium_study, 10))
+```
+Change the NA values resulting from the join to zeros using an if_else.
+```{r, results = "hide"}
+premium_study <- premium_study %>% mutate(premium = if_else(is.na(premium), 0, premium))
+head(premium_study, 10)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(premium_study, 10))
+```
+Now we are free to do any calculations we want. For a simple example we calculate the average premium in the first two policy months. Refer to the section on adding additional information for more creative policy splits. 
+```{r, results = "hide"}
+premium_study %>% filter(policy_month %in% c(1,2)) %>% group_by(policy_month) %>% summarise(avg_premium = mean(premium))
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(premium_study %>% filter(policy_month %in% c(1,2)) %>% group_by(policy_month) %>% summarise(avg_premium = mean(premium)))
+```
