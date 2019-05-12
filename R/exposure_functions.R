@@ -93,6 +93,3 @@ addExposures <- function(records, type = "PY"){
   }
 
 }
-
-
-

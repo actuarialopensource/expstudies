@@ -11,6 +11,10 @@ library(expstudies)
 library(dplyr)
 library(magrittr)
 
+## ---- include=FALSE------------------------------------------------------
+#We load the "pander" package to create our tables.
+library(pander)
+
 ## ---- results = "hide"---------------------------------------------------
 records
 

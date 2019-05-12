@@ -25,6 +25,11 @@ library(dplyr)
 library(magrittr)
 ```
 
+```{r, include=FALSE}
+#We load the "pander" package to create our tables.
+library(pander)
+```
+
 ##Making exposures from records
 Some synthetic data called "records" is included in the package. The data must have a "key", "start", and "end" column or the package will throw an error. It is also a requirement that the key column have no duplicate values. 
 ```{r, results = "hide"}
