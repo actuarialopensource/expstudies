@@ -63,9 +63,9 @@ addExposures <- function(records, type = "PY"){
   formatPY <- function(){
     mod_exposures <- addPY()
     mod_exposures <- mod_exposures %>%
-      dplyr::mutate(start_int = start %>% lubridate::add_with_rollback(lubridate::years(yrs_past_start))) %>%
+      dplyr::mutate(start_int = start %m+% lubridate::years(yrs_past_start)) %>%
       dplyr::filter(start_int <= end) %>%
-      dplyr::mutate(end_int = dplyr::if_else(start_int %>% lubridate::add_with_rollback(lubridate::years(1) - lubridate::days(1)) < end, start_int %>% lubridate::add_with_rollback(lubridate::years(1) - lubridate::days(1)), end),
+      dplyr::mutate(end_int = dplyr::if_else(start_int %m+% lubridate::years(1) - lubridate::days(1) < end, start_int %m+% lubridate::years(1) - lubridate::days(1), end),
                     exposure = as.integer(end_int - start_int + 1)/365.25,
                     duration = yrs_past_start + 1)
     mod_exposures %>% dplyr::select(key, duration, start_int, end_int, exposure)
@@ -75,11 +75,10 @@ addExposures <- function(records, type = "PY"){
     mod_exposures <- addPM()
     mod_exposures <- mod_exposures %>%
       dplyr::mutate(start_int =
-                      start %>% lubridate::add_with_rollback(lubridate::years(yrs_past_start)) %>%
-                      lubridate::add_with_rollback(months(policy_month-1))) %>%
+                      start  %m+% lubridate::years(yrs_past_start) %m+% months(policy_month-1)) %>%
       dplyr::filter(start_int <= end) %>%
-      dplyr::mutate(end_int = dplyr::if_else(start_int %>% lubridate::add_with_rollback(months(1) - lubridate::days(1)) < end,
-                                      start_int %>% lubridate::add_with_rollback(months(1) - lubridate::days(1)), end),
+      dplyr::mutate(end_int = dplyr::if_else(start_int %m+% months(1) - 1 < end,
+                                      start_int %m+% months(1) - 1, end),
              exposure = as.integer(end_int - start_int + 1)/365.25,
              duration = yrs_past_start + 1)
     mod_exposures %>% dplyr::select(key, duration, policy_month, start_int, end_int, exposure)
