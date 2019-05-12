@@ -30,13 +30,13 @@ filter_trans <- function(exposures, trans){
 #' @export
 addStart <- function(exposures, trans){
   f_trans <- filter_trans(exposures, trans)
-  f_trans <- f_trans %>% arrange(key, trans_date)
+  f_trans <- f_trans %>% dplyr::arrange(key, trans_date)
 
-  exposures <- exposures %>% arrange(key, start_int)
+  exposures <- exposures %>% dplyr::arrange(key, start_int)
 
   start_int <- findStart(exposures$key, exposures$start_int, exposures$end_int,
                          f_trans$key, f_trans$trans_date)
 
-  f_trans %>% mutate(start_int = start_int) %>% select(start_int, everything())
+  f_trans %>% dplyr::mutate(start_int = start_int) %>% dplyr::select(start_int, everything())
 }
 
