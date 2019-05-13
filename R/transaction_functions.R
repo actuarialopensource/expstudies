@@ -1,3 +1,5 @@
+. <- "Stop Giving Notes in R CMD"
+trans_date <- NULL
 #' Remove Transactions Not in Exposures.
 #'
 #' This function first converts the output of makeExposures back into a single row for each unique policy key
@@ -17,6 +19,8 @@ filter_trans <- function(exposures, trans){
 }
 
 #' Map Transaction Rows to Exposure Rows
+key <- start <- end <- NULL
+dummy <- yrs_past_start <- start_int <- end_int <- duration <- exposure <- NULL
 #'
 #' This function takes in exposures and transactions and returns all transactions with a matching "key"
 #' and "trans_date" within an exposure interval and attaches the start date of the corresponding
@@ -37,5 +41,5 @@ addStart <- function(exposures, trans){
   start_int <- findStart(exposures$key, exposures$start_int, exposures$end_int,
                          f_trans$key, f_trans$trans_date)
 
-  f_trans %>% dplyr::mutate(start_int = start_int) %>% dplyr::select(start_int, everything())
+  f_trans %>% dplyr::mutate(start_int = start_int) %>% dplyr::select(start_int, dplyr::everything())
 }
