@@ -19,8 +19,6 @@ filter_trans <- function(exposures, trans){
 }
 
 #' Map Transaction Rows to Exposure Rows
-key <- start <- end <- NULL
-dummy <- yrs_past_start <- start_int <- end_int <- duration <- exposure <- NULL
 #'
 #' This function takes in exposures and transactions and returns all transactions with a matching "key"
 #' and "trans_date" within an exposure interval and attaches the start date of the corresponding
@@ -31,6 +29,8 @@ dummy <- yrs_past_start <- start_int <- end_int <- duration <- exposure <- NULL
 #' @param trans Information we wish to assign to exposure intervals.
 #' @return Modified transaction records that corresponding to an exposure interval, the interval start date
 #' is included.
+#' @examples
+#' addStart(exposures, trans)
 #' @export
 addStart <- function(exposures, trans){
   f_trans <- filter_trans(exposures, trans)

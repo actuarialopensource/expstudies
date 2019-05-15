@@ -11,6 +11,7 @@ policy_month <- NULL
 #'
 #' @param duration The vector containing whole numbers that will be joined to.
 #' @return A data frame that can be joined to the original vector by = c("duration" = "join_by").
+#'
 makeRange <- function(duration){
   join_by = data.frame(join_by = 0:max(duration), dummy = TRUE)
   yrs_past_start = data.frame(yrs_past_start = 0:max(duration), dummy = TRUE)
@@ -31,6 +32,8 @@ makeRange <- function(duration){
 #' Creates policy month rows for type = "PM".
 #' @return A data frame with multiple rows for each unique policy key. Each row represents a
 #' policy interval.
+#' @examples
+#' addExposures(records)
 #' @export
 addExposures <- function(records, type = "PY"){
   #Require a unique key.

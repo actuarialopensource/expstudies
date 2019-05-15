@@ -12,3 +12,9 @@
 #' the transaction date ("trans_date") and the amount of the premium paid ("amt").
 #' Used to demonstrate calculations.
 "trans"
+
+#' Example exposure records to demonstrate calculations
+#'
+#' A dataset containing the output of addExposures(records).
+#' Used to demonstrate calculations.
+"exposures"
