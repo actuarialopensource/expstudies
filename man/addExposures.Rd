@@ -21,3 +21,6 @@ This function takes a records file with unique policy identifiers in the column 
 exposure start dates in column "start" and exposure end dates in column "end".
 The output is a data frame with exposures and durations for time intervals.
 }
+\examples{
+addExposures(records)
+}

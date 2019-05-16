@@ -21,3 +21,6 @@ and "trans_date" within an exposure interval and attaches the start date of the 
 exposure interval. This is useful for grouping by start date and key, aggregating, and joining
 to the exposure rows. In this way premium pattern analysis can be performed.
 }
+\examples{
+addStart(exposures, trans)
+}
