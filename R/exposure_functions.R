@@ -1,5 +1,3 @@
-. <- "Stop Giving Notes in R CMD"
-policy_month <- NULL
 #' All Consecutive Number Intervals Starting at 0
 #'
 #' A vector of whole numbers is used as input, these whole numbers are the number of

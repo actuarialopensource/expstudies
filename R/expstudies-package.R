@@ -11,6 +11,10 @@
 #'   \item addStart - Allocate transactions to intervals.
 #' }
 #'
+#'
+#' @importFrom magrittr "%>%"
+#' @importFrom lubridate "%m+%"
+#'
 #' @docType package
 #' @name expstudies
 
@@ -22,3 +26,6 @@
 #' @importFrom Rcpp sourceCpp
 ## usethis namespace: end
 NULL
+
+utils::globalVariables(c("start", "end", "key", "dummy", "yrs_past_start", "start_int",
+                         "end_int", "duration", "exposure", "policy_month", "trans_date"))

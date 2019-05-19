@@ -1,5 +1,3 @@
-. <- "Stop Giving Notes in R CMD"
-trans_date <- NULL
 #' Remove Transactions Not in Exposures.
 #'
 #' This function first converts the output of makeExposures back into a single row for each unique policy key
