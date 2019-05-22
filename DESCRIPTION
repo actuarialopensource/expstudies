@@ -23,5 +23,6 @@ LinkingTo:
 Suggests: 
     pander,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr
