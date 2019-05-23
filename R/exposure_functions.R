@@ -1,5 +1,3 @@
-. <- "Stop Giving Notes in R CMD"
-policy_month <- NULL
 #' All Consecutive Number Intervals Starting at 0
 #'
 #' A vector of whole numbers is used as input, these whole numbers are the number of
@@ -21,6 +19,7 @@ makeRange <- function(duration){
     dplyr::select(-dummy)
 }
 
+
 #' Create an Exposure Data Frame
 #'
 #' This function takes a records file with unique policy identifiers in the column "key",
@@ -41,62 +40,131 @@ addExposures <- function(records, type = "PY"){
     stop('Key is not unique')
   }
 
-  if(!all(records$end-records$start > 0)){
-    warning('End dates before start dates exist, will filter out')
+  bad_count <- records %>% dplyr::filter(start > end) %>% nrow()
+
+  if(bad_count == nrow(records)){
+    stop('All records have end dates before start dates')
+  }
+  else if(bad_count > 0){
+    warning(paste(bad_count, 'end dates before start dates will be removed', sep = " "))
   }
 
-  #Load only the columns for the key, start, and end.
-  exposures <- records %>%
+  #Load only the columns for the key, start, and end. Filter out start dates past end dates.
+  mod_records <- records %>%
     dplyr::select(key, start, end) %>%
     dplyr::filter(end >= start)
 
   #We add a row for each year. Extra rows may be added, are filtered later.
   addPY <- function(){
-    mod_exposures <- exposures %>%
+    mod_records <- mod_records %>%
       dplyr::mutate(max_d = lubridate::year(end) - lubridate::year(start))
-    mod_exposures %>%
-      dplyr::inner_join(makeRange(mod_exposures$max_d), by = c("max_d" = "join_by"))
-  }
+    exposure_frame <- mod_records %>%
+      dplyr::inner_join(makeRange(mod_records$max_d), by = c("max_d" = "join_by")) %>%
+      dplyr::mutate(start_int = start %m+% lubridate::years(yrs_past_start)) %>%
+      dplyr::filter(start_int <= end)
 
+    exposure_frame
+  }
+  #I called addPY before addPM but both create start_int. It works but is it elegant?
   #We first call addPY and then add 12 months to each year. Extra rows may be added, are filtered later.
   addPM <- function(){
     mod_exposures <- addPY() %>% dplyr::mutate(dummy = TRUE)
     through_12 <- data.frame(dummy = TRUE, policy_month = 1:12)
-    mod_exposures %>% dplyr::inner_join(through_12, by = "dummy") %>% dplyr::select(-dummy)
+    mod_exposures %>% dplyr::inner_join(through_12, by = "dummy") %>%
+      dplyr::select(-dummy) %>%
+      dplyr::mutate(start_int = start %m+% lubridate::years(yrs_past_start) %m+% months(policy_month-1)) %>%
+      dplyr::filter(start_int <= end)
   }
 
+  #Calculate the interval ends, exposures, and durations
   formatPY <- function(){
-    mod_exposures <- addPY()
-    mod_exposures <- mod_exposures %>%
-      dplyr::mutate(start_int = start %m+% lubridate::years(yrs_past_start)) %>%
-      dplyr::filter(start_int <= end) %>%
-      dplyr::mutate(end_int = dplyr::if_else(start_int %m+% lubridate::years(1) - lubridate::days(1) < end, start_int %m+% lubridate::years(1) - lubridate::days(1), end),
+    mod_exposures <- addPY() %>% dplyr::group_by(key) %>%
+      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
                     exposure = as.integer(end_int - start_int + 1)/365.25,
-                    duration = yrs_past_start + 1)
+                    duration = yrs_past_start + 1) %>% dplyr::ungroup()
     mod_exposures %>% dplyr::select(key, duration, start_int, end_int, exposure)
   }
 
+  #Add policy months
   formatPM <- function(){
-    mod_exposures <- addPM()
-    mod_exposures <- mod_exposures %>%
-      dplyr::mutate(start_int =
-                      start  %m+% lubridate::years(yrs_past_start) %m+% months(policy_month-1)) %>%
-      dplyr::filter(start_int <= end) %>%
-      dplyr::mutate(end_int = dplyr::if_else(start_int %m+% months(1) - 1 < end,
-                                      start_int %m+% months(1) - 1, end),
-             exposure = as.integer(end_int - start_int + 1)/365.25,
-             duration = yrs_past_start + 1)
+    mod_exposures <- addPM() %>% dplyr::group_by(key) %>%
+      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
+                    exposure = as.integer(end_int - start_int + 1)/365.25,
+                    duration = yrs_past_start + 1) %>% dplyr::ungroup()
     mod_exposures %>% dplyr::select(key, duration, policy_month, start_int, end_int, exposure)
+  }
+
+  #Add policy years, intervals are not split across calendar years allowing for calendar year studies.
+  formatPYCY <- function(){
+    PY_start <- addPY() %>% dplyr::mutate(PY_start = TRUE)
+    CY_start <- addPY() %>% dplyr::mutate(start_int = lubridate::ceiling_date(start_int, unit = "year"), PY_start = FALSE) %>%
+      dplyr::filter(start_int <= end)
+    PYandCY <- rbind(PY_start, CY_start) %>% dplyr::arrange(key, start_int, PY_start)
+    PYandCY %>% dplyr::group_by(key) %>%
+      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
+                    exposure = as.integer(end_int - start_int + 1)/365.25,
+                    duration = yrs_past_start + 1) %>%
+      dplyr::filter(exposure > 0) %>% dplyr::ungroup() %>%
+      dplyr::select(key, duration, start_int, end_int, exposure)
+  }
+
+  #Add policy years, intervals are not split across calendar years allowing for calendar year studies.
+  formatPYCM <- function(){
+    PY_start <- addPY() %>% dplyr::mutate(PY_start = TRUE)
+    CM_start <- addPM() %>% dplyr::mutate(start_int = lubridate::ceiling_date(start_int, unit = "month"), PY_start = FALSE) %>%
+      dplyr::filter(start_int <= end) %>% dplyr::select(-policy_month)
+    PYandCM <- rbind(PY_start, CM_start) %>% dplyr::arrange(key, start_int, PY_start)
+    PYandCM %>% dplyr::group_by(key) %>%
+      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
+                    exposure = as.integer(end_int - start_int + 1)/365.25,
+                    duration = yrs_past_start + 1) %>%
+      dplyr::filter(exposure > 0) %>% dplyr::ungroup() %>%
+      dplyr::select(key, duration, start_int, end_int, exposure)
+  }
+
+  formatPMCY <- function(){
+    PM_start <- addPM() %>% dplyr::mutate(PM_start = TRUE)
+    CY_start <- addPY() %>%
+      dplyr::mutate(start_int = lubridate::ceiling_date(start_int, unit = "year"), PM_start = FALSE, policy_month = NA) %>%
+      dplyr::filter(start_int <= end)
+    PMandCY <- rbind(PM_start, CY_start) %>% dplyr::arrange(key, start_int, PM_start) %>%
+      dplyr::mutate(policy_month = dplyr::if_else(is.na(policy_month), dplyr::lag(policy_month), policy_month))
+    PMandCY %>% dplyr::group_by(key) %>%
+      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
+                    exposure = as.integer(end_int - start_int + 1)/365.25,
+                    duration = yrs_past_start + 1) %>%
+      dplyr::filter(exposure > 0) %>% dplyr::ungroup() %>%
+      dplyr::select(key, duration, policy_month, start_int, end_int, exposure)
+  }
+
+  formatPMCM <- function(){
+    PM_start <- addPM() %>% dplyr::mutate(PM_start = TRUE)
+    CM_start <- addPM() %>% dplyr::mutate(start_int = lubridate::ceiling_date(start_int, unit = "month"), PM_start = FALSE) %>%
+      dplyr::filter(start_int <= end)
+    PMandCM <- rbind(PM_start, CM_start) %>% dplyr::arrange(key, start_int, PM_start)
+    #Duplicate values remove the PM_start==FALSE record because it is assigned 0 exposure and filtered.
+    PMandCM %>% dplyr::group_by(key) %>%
+      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
+                    exposure = as.integer(end_int - start_int + 1)/365.25,
+                    duration = yrs_past_start + 1) %>%
+      dplyr::filter(exposure > 0) %>% dplyr::ungroup() %>%
+      dplyr::select(key, duration, policy_month, start_int, end_int, exposure)
   }
 
   if (type == "PY") {
     return(formatPY())
   } else if (type == "PM") {
     return(formatPM())
+  } else if (type == "PYCY") {
+    return(formatPYCY())
+  } else if (type == "PYCM") {
+    return(formatPYCM())
+  } else if (type == "PMCY") {
+    return(formatPMCY())
+  } else if (type == "PMCM") {
+    return(formatPMCM())
   } else {
-    stop('Type should be PM or PY')
+    stop('!(type %in% c("PY", "PM", "PYCM", "PMCY", "PMCM"))')
   }
 
 }
-
-
