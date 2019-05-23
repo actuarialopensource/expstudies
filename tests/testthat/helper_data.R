@@ -1,0 +1,146 @@
+#Expected data frame from addExposures(record_start, type = 'PY')
+good_PY <- data.frame(
+  key = c("A", "A"),
+  duration = c(1, 2),
+  start_int = c(as.Date("2000-01-01"), as.Date("2001-01-01")),
+  end_int = c(as.Date("2000-12-31"), as.Date("2001-02-10")),
+  exposure = c(366, 41)/365.25)
+
+#Expected data frame from addExposures(record_start, type = 'PM')
+good_PM <- data.frame(
+  key = c("A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A"),
+  duration = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2),
+  policy_month = as.integer(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2)),
+  start_int = c(as.Date("2000-01-01"), as.Date("2000-02-01"), as.Date("2000-03-01"),
+                as.Date("2000-04-01"), as.Date("2000-05-01"), as.Date("2000-06-01"),
+                as.Date("2000-07-01"), as.Date("2000-08-01"), as.Date("2000-09-01"),
+                as.Date("2000-10-01"), as.Date("2000-11-01"), as.Date("2000-12-01"),
+                as.Date("2001-01-01"), as.Date("2001-02-01")),
+  end_int = c(as.Date("2000-01-31"), as.Date("2000-02-29"), as.Date("2000-03-31"),
+              as.Date("2000-04-30"), as.Date("2000-05-31"), as.Date("2000-06-30"),
+              as.Date("2000-07-31"), as.Date("2000-08-31"), as.Date("2000-09-30"),
+              as.Date("2000-10-31"), as.Date("2000-11-30"), as.Date("2000-12-31"),
+              as.Date("2001-01-31"), as.Date("2001-02-10")),
+  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25)
+
+#Expected data frame from addExposures(record_mid, type = 'PYCY')
+good_PYCY_mid <- data.frame(
+  key = c("A", "A", "A"),
+  duration = c(1, 1, 2),
+  start_int = c(as.Date("2000-06-15"), as.Date("2001-01-01"), as.Date("2001-06-15")),
+  end_int = c(as.Date("2000-12-31"), as.Date("2001-06-14"), as.Date("2001-07-25")),
+  exposure = c(200, 165, 41)/365.25)
+#Expected data frame from addExposures(record_start, type = 'PYCY')
+good_PYCY_start <- data.frame(
+  key = c("A", "A"),
+  duration = c(1, 2),
+  start_int = c(as.Date("2000-01-01"), as.Date("2001-01-01")),
+  end_int = c(as.Date("2000-12-31"), as.Date("2001-02-10")),
+  exposure = c(366, 41)/365.25)
+
+#Expected data frame from addExposures(record_mid, type = "PYCM")
+good_PYCM_mid <- data.frame(
+  key = c("A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A"),
+  duration = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2),
+  start_int = c(as.Date("2000-06-15"), as.Date("2000-07-01"), as.Date("2000-08-01"),
+                as.Date("2000-09-01"), as.Date("2000-10-01"), as.Date("2000-11-01"),
+                as.Date("2000-12-01"), as.Date("2001-01-01"), as.Date("2001-02-01"),
+                as.Date("2001-03-01"), as.Date("2001-04-01"), as.Date("2001-05-01"),
+                as.Date("2001-06-01"), as.Date("2001-06-15"), as.Date("2001-07-01")),
+  end_int = c(as.Date("2000-06-30"), as.Date("2000-07-31"), as.Date("2000-08-31"),
+              as.Date("2000-09-30"), as.Date("2000-10-31"), as.Date("2000-11-30"),
+              as.Date("2000-12-31"), as.Date("2001-01-31"), as.Date("2001-02-28"),
+              as.Date("2001-03-31"), as.Date("2001-04-30"), as.Date("2001-05-31"),
+              as.Date("2001-06-14"), as.Date("2001-06-30"), as.Date("2001-07-25")),
+  exposure = c(16, 31, 31, 30, 31, 30, 31, 31, 28, 31, 30, 31, 14, 16, 25)/365.25)
+#Expected data frame from addExposures(record_start, type = "PYCM")
+good_PYCM_start <- data.frame(
+  key = c("A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A"),
+  duration = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2),
+  start_int = c(as.Date("2000-01-01"), as.Date("2000-02-01"), as.Date("2000-03-01"),
+                as.Date("2000-04-01"), as.Date("2000-05-01"), as.Date("2000-06-01"),
+                as.Date("2000-07-01"), as.Date("2000-08-01"), as.Date("2000-09-01"),
+                as.Date("2000-10-01"), as.Date("2000-11-01"), as.Date("2000-12-01"),
+                as.Date("2001-01-01"), as.Date("2001-02-01")),
+  end_int = c(as.Date("2000-01-31"), as.Date("2000-02-29"), as.Date("2000-03-31"),
+              as.Date("2000-04-30"), as.Date("2000-05-31"), as.Date("2000-06-30"),
+              as.Date("2000-07-31"), as.Date("2000-08-31"), as.Date("2000-09-30"),
+              as.Date("2000-10-31"), as.Date("2000-11-30"), as.Date("2000-12-31"),
+              as.Date("2001-01-31"), as.Date("2001-02-10")),
+  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25)
+
+#Expected data frame from addExposures(record_mid, type = "PMCY")
+good_PMCY_mid <- data.frame(
+  key = c("A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A"),
+  duration = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2),
+  policy_month = as.integer(c(1, 2, 3, 4, 5, 6, 7, 7, 8, 9, 10, 11, 12, 1, 2)),
+  start_int = c(as.Date("2000-06-15"), as.Date("2000-07-15"), as.Date("2000-08-15"),
+                as.Date("2000-09-15"), as.Date("2000-10-15"), as.Date("2000-11-15"),
+                as.Date("2000-12-15"), as.Date("2001-01-01"), as.Date("2001-01-15"),
+                as.Date("2001-02-15"), as.Date("2001-03-15"), as.Date("2001-04-15"),
+                as.Date("2001-05-15"), as.Date("2001-06-15"), as.Date("2001-07-15")),
+  end_int = c(as.Date("2000-07-14"), as.Date("2000-08-14"), as.Date("2000-09-14"),
+              as.Date("2000-10-14"), as.Date("2000-11-14"), as.Date("2000-12-14"),
+              as.Date("2000-12-31"), as.Date("2001-01-14"), as.Date("2001-02-14"),
+              as.Date("2001-03-14"), as.Date("2001-04-14"), as.Date("2001-05-14"),
+              as.Date("2001-06-14"), as.Date("2001-07-14"), as.Date("2001-07-25")),
+  exposure = c(30, 31, 31, 30, 31, 30, 17, 14, 31, 28, 31, 30, 31, 30, 11)/365.25)
+#Expected data frame from addExposures(record_start, type = "PMCY")
+good_PMCY_start <- data.frame(
+  key = c("A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A"),
+  duration = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2),
+  policy_month = as.integer(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2)),
+  start_int = c(as.Date("2000-01-01"), as.Date("2000-02-01"), as.Date("2000-03-01"),
+                as.Date("2000-04-01"), as.Date("2000-05-01"), as.Date("2000-06-01"),
+                as.Date("2000-07-01"), as.Date("2000-08-01"), as.Date("2000-09-01"),
+                as.Date("2000-10-01"), as.Date("2000-11-01"), as.Date("2000-12-01"),
+                as.Date("2001-01-01"), as.Date("2001-02-01")),
+  end_int = c(as.Date("2000-01-31"), as.Date("2000-02-29"), as.Date("2000-03-31"),
+              as.Date("2000-04-30"), as.Date("2000-05-31"), as.Date("2000-06-30"),
+              as.Date("2000-07-31"), as.Date("2000-08-31"), as.Date("2000-09-30"),
+              as.Date("2000-10-31"), as.Date("2000-11-30"), as.Date("2000-12-31"),
+              as.Date("2001-01-31"), as.Date("2001-02-10")),
+  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25)
+
+#Expected data frame from addExposures(record_mid, type = "PMCM")
+good_PMCM_mid <- data.frame(
+  key = rep("A", 27),
+  duration = c(rep(1, 24), c(2, 2, 2)),
+  policy_month = as.integer(c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7,
+                              8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 1, 1, 2)),
+  start_int = c(as.Date("2000-06-15"), as.Date("2000-07-01"), as.Date("2000-07-15"),
+                as.Date("2000-08-01"), as.Date("2000-08-15"), as.Date("2000-09-01"),
+                as.Date("2000-09-15"), as.Date("2000-10-01"), as.Date("2000-10-15"),
+                as.Date("2000-11-01"), as.Date("2000-11-15"), as.Date("2000-12-01"),
+                as.Date("2000-12-15"), as.Date("2001-01-01"), as.Date("2001-01-15"),
+                as.Date("2001-02-01"), as.Date("2001-02-15"), as.Date("2001-03-01"),
+                as.Date("2001-03-15"), as.Date("2001-04-01"), as.Date("2001-04-15"),
+                as.Date("2001-05-01"), as.Date("2001-05-15"), as.Date("2001-06-01"),
+                as.Date("2001-06-15"), as.Date("2001-07-01"), as.Date("2001-07-15")),
+  end_int = c(as.Date("2000-06-30"), as.Date("2000-07-14"), as.Date("2000-07-31"),
+              as.Date("2000-08-14"), as.Date("2000-08-31"), as.Date("2000-09-14"),
+              as.Date("2000-09-30"), as.Date("2000-10-14"), as.Date("2000-10-31"),
+              as.Date("2000-11-14"), as.Date("2000-11-30"), as.Date("2000-12-14"),
+              as.Date("2000-12-31"), as.Date("2001-01-14"), as.Date("2001-01-31"),
+              as.Date("2001-02-14"), as.Date("2001-02-28"), as.Date("2001-03-14"),
+              as.Date("2001-03-31"), as.Date("2001-04-14"), as.Date("2001-04-30"),
+              as.Date("2001-05-14"), as.Date("2001-05-31"), as.Date("2001-06-14"),
+              as.Date("2001-06-30"), as.Date("2001-07-14"), as.Date("2001-07-25")),
+  exposure = c(16, 14, 17, 14, 17, 14, 16, 14, 17, 14, 16, 14, 17, 14,
+               17, 14, 14, 14, 17, 14, 16, 14, 17, 14, 16, 14, 11)/365.25)
+#Expected data frame from addExposures(record_start, type = "PMCM")
+good_PMCM_start <- data.frame(
+  key = c("A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A"),
+  duration = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2),
+  policy_month = as.integer(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2)),
+  start_int = c(as.Date("2000-01-01"), as.Date("2000-02-01"), as.Date("2000-03-01"),
+                as.Date("2000-04-01"), as.Date("2000-05-01"), as.Date("2000-06-01"),
+                as.Date("2000-07-01"), as.Date("2000-08-01"), as.Date("2000-09-01"),
+                as.Date("2000-10-01"), as.Date("2000-11-01"), as.Date("2000-12-01"),
+                as.Date("2001-01-01"), as.Date("2001-02-01")),
+  end_int = c(as.Date("2000-01-31"), as.Date("2000-02-29"), as.Date("2000-03-31"),
+              as.Date("2000-04-30"), as.Date("2000-05-31"), as.Date("2000-06-30"),
+              as.Date("2000-07-31"), as.Date("2000-08-31"), as.Date("2000-09-30"),
+              as.Date("2000-10-31"), as.Date("2000-11-30"), as.Date("2000-12-31"),
+              as.Date("2001-01-31"), as.Date("2001-02-10")),
+  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25)
