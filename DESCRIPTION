@@ -1,6 +1,6 @@
 Package: expstudies
 Title: Calculate Exposures, Assign Records to Intervals
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person(given = "Matthew", family = "Caseres", email = "matthewcaseres@outlook.com",
     role = c("aut", "cre"))
