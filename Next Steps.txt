@@ -1,7 +1,0 @@
-1. Currently can only do studies anniversary to anniversary, add functionality for calendar month and calendar year.
-2. Document test cases.
-3. Fix so that the package can be installed via install.packages without using type = "source"
-4. Upload a larger dataset to give more full examples. Consider making full lapse/mortality/premium pattern/partial withdrawal demos.
-5. Upload long format SOA mortality tables for multi-key join to add A/E example calculations.
-6. Argue about how to model leap years.
-
