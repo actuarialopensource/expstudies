@@ -4,13 +4,15 @@
 \alias{addExposures}
 \title{Create an Exposure Data Frame}
 \usage{
-addExposures(records, type = "PY")
+addExposures(records, type = "PY", lower_year = NULL)
 }
 \arguments{
 \item{records}{File containing a unique policy key with start and end dates.}
 
 \item{type}{Creates policy year rows for the default type = "PY".
 Creates policy month rows for type = "PM".}
+
+\item{lower_year}{A lower year for truncation to reduce calculation time and output size.}
 }
 \value{
 A data frame with multiple rows for each unique policy key. Each row represents a

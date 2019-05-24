@@ -29,18 +29,21 @@ makeRange <- function(duration){
 #' @param records File containing a unique policy key with start and end dates.
 #' @param type Creates policy year rows for the default type = "PY".
 #' Creates policy month rows for type = "PM".
+#' @param lower_year A lower year for truncation to reduce calculation time and output size.
 #' @return A data frame with multiple rows for each unique policy key. Each row represents a
 #' policy interval.
 #' @examples
 #' addExposures(records)
 #' @export
-addExposures <- function(records, type = "PY"){
+addExposures <- function(records, type = "PY", lower_year = NULL){
   #Require a unique key.
   if(anyDuplicated(records$key)){
     stop('Key is not unique')
   }
 
-  bad_count <- records %>% dplyr::filter(start > end) %>% nrow()
+  #Load only the columns for the key, start, and end. Filter out start dates past end dates.
+  mod_records <- records %>% dplyr::select(key, start, end) %>% dplyr::filter(start <= end)
+  bad_count <- nrow(records) - nrow(mod_records)
 
   if(bad_count == nrow(records)){
     stop('All records have end dates before start dates')
@@ -49,10 +52,14 @@ addExposures <- function(records, type = "PY"){
     warning(paste(bad_count, 'end dates before start dates will be removed', sep = " "))
   }
 
-  #Load only the columns for the key, start, and end. Filter out start dates past end dates.
-  mod_records <- records %>%
-    dplyr::select(key, start, end) %>%
-    dplyr::filter(end >= start)
+  if(!is.null(lower_year)){
+    if(lower_year%%1 != 0) stop("lower_year must be an integer")
+    mod_records <- mod_records %>%
+      dplyr::mutate(year_increment = dplyr::if_else(lower_year - lubridate::year(start) >= 2,
+                                                    lower_year - lubridate::year(start) - 1, 0),
+                    start = start %m+% lubridate::years(year_increment))
+    key_and_year_increment <- mod_records %>% dplyr::select(key, year_increment)
+  }
 
   #We add a row for each year. Extra rows may be added, are filtered later.
   addPY <- function(){
@@ -152,19 +159,27 @@ addExposures <- function(records, type = "PY"){
   }
 
   if (type == "PY") {
-    return(formatPY())
+    result <- formatPY()
   } else if (type == "PM") {
-    return(formatPM())
+    result <- formatPM()
   } else if (type == "PYCY") {
-    return(formatPYCY())
+    result <- formatPYCY()
   } else if (type == "PYCM") {
-    return(formatPYCM())
+    result <- formatPYCM()
   } else if (type == "PMCY") {
-    return(formatPMCY())
+    result <- formatPMCY()
   } else if (type == "PMCM") {
-    return(formatPMCM())
+    result <- formatPMCM()
   } else {
     stop('!(type %in% c("PY", "PM", "PYCM", "PMCY", "PMCM"))')
   }
 
+  if(!is.null(lower_year)){
+    result <- result %>% dplyr::inner_join(key_and_year_increment, by = "key") %>%
+      dplyr::mutate(duration = duration + year_increment) %>%
+      dplyr::filter(lubridate::year(start_int) >= lower_year)
+  }
+
+  result
 }
+
