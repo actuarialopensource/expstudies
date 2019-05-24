@@ -151,8 +151,7 @@ good_old_PY <- data.frame(stringsAsFactors = FALSE,
   duration = c(201, 202),
   start_int = c(as.Date("2000-06-15"), as.Date("2001-06-15")),
   end_int = c(as.Date("2001-06-14"), as.Date("2001-07-25")),
-  exposure = c(365, 41)/365.25,
-  year_increment = c(199, 199))
+  exposure = c(365, 41)/365.25)
 
 #Expected data frame from addExposures(old_record_start, type = "PM", lower_year = 2000)
 good_old_PM <- data.frame(stringsAsFactors = FALSE,
@@ -169,8 +168,7 @@ good_old_PM <- data.frame(stringsAsFactors = FALSE,
               as.Date("2000-07-31"), as.Date("2000-08-31"), as.Date("2000-09-30"),
               as.Date("2000-10-31"), as.Date("2000-11-30"), as.Date("2000-12-31"),
               as.Date("2001-01-31"), as.Date("2001-02-10")),
-  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25,
-  year_increment = rep(199, 14))
+  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25)
 
 #Expected data frame from addExposures(old_record_mid, type = "PYCY", lower_year = 2000)
 good_old_PYCY <- data.frame(stringsAsFactors = FALSE,
@@ -178,8 +176,7 @@ good_old_PYCY <- data.frame(stringsAsFactors = FALSE,
   duration = c(200, 201, 201, 202),
   start_int = c(as.Date("2000-01-01"), as.Date("2000-06-15"), as.Date("2001-01-01"), as.Date("2001-06-15")),
   end_int = c(as.Date("2000-06-14"), as.Date("2000-12-31"), as.Date("2001-06-14"), as.Date("2001-07-25")),
-  exposure = c(166, 200, 165, 41)/365.25,
-  year_increment = c(199, 199, 199, 199))
+  exposure = c(166, 200, 165, 41)/365.25)
 
 #Expected data frame from addExposures(old_record_start, type = "PYCM")
 good_old_PYCM <- data.frame(stringsAsFactors = FALSE,
@@ -195,8 +192,7 @@ good_old_PYCM <- data.frame(stringsAsFactors = FALSE,
               as.Date("2000-07-31"), as.Date("2000-08-31"), as.Date("2000-09-30"),
               as.Date("2000-10-31"), as.Date("2000-11-30"), as.Date("2000-12-31"),
               as.Date("2001-01-31"), as.Date("2001-02-10")),
-  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25,
-  year_increment = rep(199, 14))
+  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25)
 
 #Expected data frame from addExposures(old_record_start, type = "PMCY")
 good_old_PMCY <- data.frame(stringsAsFactors = FALSE,
@@ -213,8 +209,7 @@ good_old_PMCY <- data.frame(stringsAsFactors = FALSE,
               as.Date("2000-07-31"), as.Date("2000-08-31"), as.Date("2000-09-30"),
               as.Date("2000-10-31"), as.Date("2000-11-30"), as.Date("2000-12-31"),
               as.Date("2001-01-31"), as.Date("2001-02-10")),
-  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25,
-  year_increment = rep(199, 14))
+  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25)
 
 #Expected data frame from addExposures(old_record_start, type = "PMCM")
 good_old_PMCM <- data.frame(stringsAsFactors = FALSE,
@@ -231,5 +226,4 @@ good_old_PMCM <- data.frame(stringsAsFactors = FALSE,
               as.Date("2000-07-31"), as.Date("2000-08-31"), as.Date("2000-09-30"),
               as.Date("2000-10-31"), as.Date("2000-11-30"), as.Date("2000-12-31"),
               as.Date("2001-01-31"), as.Date("2001-02-10")),
-  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25,
-  year_increment = rep(199, 14))
+  exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25)

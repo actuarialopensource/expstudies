@@ -1,6 +1,5 @@
 context("test-exposure_functions")
 
-
 #A record with a non-unique key, not allowable input.
 record_bad_key <- data.frame(key = rep("A", 2), start = rep(as.Date("2000-01-01"), 2), end = rep(as.Date("2001-02-10"), 2), stringsAsFactors = FALSE)
 
