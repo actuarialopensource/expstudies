@@ -41,3 +41,4 @@ addStart <- function(exposures, trans){
 
   f_trans %>% dplyr::mutate(start_int = start_int) %>% dplyr::select(start_int, dplyr::everything())
 }
+

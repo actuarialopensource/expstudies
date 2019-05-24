@@ -29,18 +29,21 @@ makeRange <- function(duration){
 #' @param records File containing a unique policy key with start and end dates.
 #' @param type Creates policy year rows for the default type = "PY".
 #' Creates policy month rows for type = "PM".
+#' @param lower_year A lower year for truncation to reduce calculation time and output size.
 #' @return A data frame with multiple rows for each unique policy key. Each row represents a
 #' policy interval.
 #' @examples
 #' addExposures(records)
 #' @export
-addExposures <- function(records, type = "PY"){
+addExposures <- function(records, type = "PY", lower_year = NULL){
   #Require a unique key.
   if(anyDuplicated(records$key)){
     stop('Key is not unique')
   }
 
-  bad_count <- records %>% dplyr::filter(start > end) %>% nrow()
+  #Load only the columns for the key, start, and end. Filter out start dates past end dates.
+  mod_records <- records %>% dplyr::select(key, start, end) %>% dplyr::filter(start <= end)
+  bad_count <- nrow(records) - nrow(mod_records)
 
   if(bad_count == nrow(records)){
     stop('All records have end dates before start dates')
@@ -49,21 +52,25 @@ addExposures <- function(records, type = "PY"){
     warning(paste(bad_count, 'end dates before start dates will be removed', sep = " "))
   }
 
-  #Load only the columns for the key, start, and end. Filter out start dates past end dates.
-  mod_records <- records %>%
-    dplyr::select(key, start, end) %>%
-    dplyr::filter(end >= start)
+  #Increment up the start interval to the year prior lower_year to reduce calculation size.
+  #Filtered later for an exact lower truncation.
+  if(!is.null(lower_year)){
+    if(lower_year%%1 != 0) stop("lower_year must be an integer")
+    mod_records <- mod_records %>%
+      dplyr::mutate(year_increment = dplyr::if_else(lower_year - lubridate::year(start) >= 2,
+                                                    lower_year - lubridate::year(start) - 1, 0),
+                    start = start %m+% lubridate::years(year_increment))
+    key_and_year_increment <- mod_records %>% dplyr::select(key, year_increment)
+  }
 
   #We add a row for each year. Extra rows may be added, are filtered later.
   addPY <- function(){
     mod_records <- mod_records %>%
       dplyr::mutate(max_d = lubridate::year(end) - lubridate::year(start))
-    exposure_frame <- mod_records %>%
+    mod_records %>%
       dplyr::inner_join(makeRange(mod_records$max_d), by = c("max_d" = "join_by")) %>%
       dplyr::mutate(start_int = start %m+% lubridate::years(yrs_past_start)) %>%
       dplyr::filter(start_int <= end)
-
-    exposure_frame
   }
   #I called addPY before addPM but both create start_int. It works but is it elegant?
   #We first call addPY and then add 12 months to each year. Extra rows may be added, are filtered later.
@@ -76,22 +83,24 @@ addExposures <- function(records, type = "PY"){
       dplyr::filter(start_int <= end)
   }
 
-  #Calculate the interval ends, exposures, and durations
-  formatPY <- function(){
-    mod_exposures <- addPY() %>% dplyr::group_by(key) %>%
+  #Add in the end intervals, calculate exposures, include durations
+  addDetails <- function(exposure_base){
+    exposure_base %>% dplyr::group_by(key) %>%
       dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
                     exposure = as.integer(end_int - start_int + 1)/365.25,
                     duration = yrs_past_start + 1) %>% dplyr::ungroup()
-    mod_exposures %>% dplyr::select(key, duration, start_int, end_int, exposure)
+  }
+
+  #Calculate the interval ends, exposures, and durations
+  formatPY <- function(){
+    addPY() %>% addDetails() %>%
+      dplyr::select(key, duration, start_int, end_int, exposure)
   }
 
   #Add policy months
   formatPM <- function(){
-    mod_exposures <- addPM() %>% dplyr::group_by(key) %>%
-      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
-                    exposure = as.integer(end_int - start_int + 1)/365.25,
-                    duration = yrs_past_start + 1) %>% dplyr::ungroup()
-    mod_exposures %>% dplyr::select(key, duration, policy_month, start_int, end_int, exposure)
+    addPM() %>% addDetails() %>%
+    dplyr::select(key, duration, policy_month, start_int, end_int, exposure)
   }
 
   #Add policy years, intervals are not split across calendar years allowing for calendar year studies.
@@ -100,11 +109,10 @@ addExposures <- function(records, type = "PY"){
     CY_start <- addPY() %>% dplyr::mutate(start_int = lubridate::ceiling_date(start_int, unit = "year"), PY_start = FALSE) %>%
       dplyr::filter(start_int <= end)
     PYandCY <- rbind(PY_start, CY_start) %>% dplyr::arrange(key, start_int, PY_start)
-    PYandCY %>% dplyr::group_by(key) %>%
-      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
-                    exposure = as.integer(end_int - start_int + 1)/365.25,
-                    duration = yrs_past_start + 1) %>%
-      dplyr::filter(exposure > 0) %>% dplyr::ungroup() %>%
+
+    #The dplyr::filter will remove duplicate values where policy years collide with calendar years.
+    #See tests/testthat/helper_data.R for an example of the desired behavior in this case.
+    PYandCY %>% addDetails() %>% dplyr::filter(exposure > 0) %>%
       dplyr::select(key, duration, start_int, end_int, exposure)
   }
 
@@ -114,11 +122,8 @@ addExposures <- function(records, type = "PY"){
     CM_start <- addPM() %>% dplyr::mutate(start_int = lubridate::ceiling_date(start_int, unit = "month"), PY_start = FALSE) %>%
       dplyr::filter(start_int <= end) %>% dplyr::select(-policy_month)
     PYandCM <- rbind(PY_start, CM_start) %>% dplyr::arrange(key, start_int, PY_start)
-    PYandCM %>% dplyr::group_by(key) %>%
-      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
-                    exposure = as.integer(end_int - start_int + 1)/365.25,
-                    duration = yrs_past_start + 1) %>%
-      dplyr::filter(exposure > 0) %>% dplyr::ungroup() %>%
+
+    PYandCM %>% addDetails() %>% dplyr::filter(exposure > 0) %>%
       dplyr::select(key, duration, start_int, end_int, exposure)
   }
 
@@ -129,11 +134,8 @@ addExposures <- function(records, type = "PY"){
       dplyr::filter(start_int <= end)
     PMandCY <- rbind(PM_start, CY_start) %>% dplyr::arrange(key, start_int, PM_start) %>%
       dplyr::mutate(policy_month = dplyr::if_else(is.na(policy_month), dplyr::lag(policy_month), policy_month))
-    PMandCY %>% dplyr::group_by(key) %>%
-      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
-                    exposure = as.integer(end_int - start_int + 1)/365.25,
-                    duration = yrs_past_start + 1) %>%
-      dplyr::filter(exposure > 0) %>% dplyr::ungroup() %>%
+
+    PMandCY %>% addDetails() %>% dplyr::filter(exposure > 0) %>%
       dplyr::select(key, duration, policy_month, start_int, end_int, exposure)
   }
 
@@ -143,28 +145,33 @@ addExposures <- function(records, type = "PY"){
       dplyr::filter(start_int <= end)
     PMandCM <- rbind(PM_start, CM_start) %>% dplyr::arrange(key, start_int, PM_start)
     #Duplicate values remove the PM_start==FALSE record because it is assigned 0 exposure and filtered.
-    PMandCM %>% dplyr::group_by(key) %>%
-      dplyr::mutate(end_int = dplyr::lead(start_int) - 1, end_int = dplyr::if_else(is.na(end_int), end, end_int),
-                    exposure = as.integer(end_int - start_int + 1)/365.25,
-                    duration = yrs_past_start + 1) %>%
-      dplyr::filter(exposure > 0) %>% dplyr::ungroup() %>%
+    PMandCM %>% addDetails() %>% dplyr::filter(exposure > 0) %>%
       dplyr::select(key, duration, policy_month, start_int, end_int, exposure)
   }
 
   if (type == "PY") {
-    return(formatPY())
+    result <- formatPY()
   } else if (type == "PM") {
-    return(formatPM())
+    result <- formatPM()
   } else if (type == "PYCY") {
-    return(formatPYCY())
+    result <- formatPYCY()
   } else if (type == "PYCM") {
-    return(formatPYCM())
+    result <- formatPYCM()
   } else if (type == "PMCY") {
-    return(formatPMCY())
+    result <- formatPMCY()
   } else if (type == "PMCM") {
-    return(formatPMCM())
+    result <- formatPMCM()
   } else {
     stop('!(type %in% c("PY", "PM", "PYCM", "PMCY", "PMCM"))')
   }
 
+  if(!is.null(lower_year)){
+    result <- result %>% dplyr::inner_join(key_and_year_increment, by = "key") %>%
+      dplyr::mutate(duration = duration + year_increment) %>%
+      dplyr::select(-year_increment) %>%
+      dplyr::filter(lubridate::year(start_int) >= lower_year)
+  }
+
+  result
 }
+
