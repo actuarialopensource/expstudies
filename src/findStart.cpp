@@ -12,8 +12,8 @@ DateVector findStart(CharacterVector exp_key, DateVector start_int,
   //Initialize DateVector to store start dates in.
   DateVector out(trans_length);
 
-  /*Note that the sorting of the vectors in filter_trans allows us to not double check exposures that we have already
-   * iterated over in the following loop.*/
+  /*Note that the sorting of the vectors prior to function call allows us to not double check exposures
+   * that we iterate over in the following loop.*/
   int i = 0, j = 0;
   while(i < trans_length) {
     /* If the transaction has a matching key and the transaction date is between the interval start and the interval end,
@@ -25,7 +25,7 @@ DateVector findStart(CharacterVector exp_key, DateVector start_int,
     } else { // If we aren't in the right interval move to the next interval.
       j += 1;
       if (j >= exp_length) {
-        throw "Transaction has no matching exposure"; //This shouldn't happen.
+        stop("Transaction has no matching exposure, do not modify exposure frame intervals after creation"); //This shouldn't happen.
       }
     }
   }
