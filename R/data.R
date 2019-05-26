@@ -18,3 +18,13 @@
 #' A dataset containing the output of addExposures(records).
 #' Used to demonstrate calculations.
 "exposures"
+
+#' Long format select SOA tables 1076-1085
+#'
+#' Intended to be left joined to exposure frames.
+"CSO2001ANB_3NT2T_Select"
+
+#' Long format ultimate SOA tables 1076-1085
+#'
+#' Intended to be left joined to exposure frames.
+"CSO2001ANB_3NT2T_Ultimate"
