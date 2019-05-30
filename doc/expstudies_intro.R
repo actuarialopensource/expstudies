@@ -4,10 +4,8 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ----setup---------------------------------------------------------------
-library(expstudies)
-
 ## ----message = FALSE-----------------------------------------------------
+library(expstudies)
 library(dplyr)
 library(magrittr)
 
@@ -16,7 +14,7 @@ library(magrittr)
 library(pander)
 
 ## ---- results = "hide"---------------------------------------------------
-records
+expstudies::records
 
 ## ---- results = "asis", echo = FALSE-------------------------------------
 pander::pandoc.table(records)
@@ -36,31 +34,90 @@ head(exposures_PM)
 pander::pandoc.table(head(exposures_PM))
 
 ## ---- results = "hide"---------------------------------------------------
-exposures_mod <- exposures %>% group_by(key) %>% mutate(exposure_mod = if_else(duration == max(duration), 1, exposure), death_cnt = if_else(duration == max(duration), 1, 0)) %>% ungroup()
-
-tail(exposures_mod, 4)
-
-## ---- results = "asis", echo = FALSE-------------------------------------
-pander::pandoc.table(tail(exposures_mod, 4))
-
-## ---- results = "hide"---------------------------------------------------
-exposures_mod %>% group_by(duration) %>% summarise(q = sum(death_cnt)/sum(exposure_mod))
+exposures_PYCY <- addExposures(records, type = "PYCY")
+head(exposures_PYCY)
 
 ## ---- results = "asis", echo = FALSE-------------------------------------
-pander::pandoc.table(exposures_mod %>% group_by(duration) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)))
+pander::pandoc.table(head(exposures_PYCY))
 
 ## ---- results = "hide"---------------------------------------------------
-exposures_mod <- exposures_mod %>% inner_join(select(records, key, issue_age, gender), by = "key")
+exposures_PYCM <- addExposures(records, type = "PYCM")
+head(exposures_PYCM, n = 15)
+
+## ---- results = "asis", echo = FALSE-------------------------------------
+pander::pandoc.table(head(exposures_PYCM, n = 15))
+
+## ---- results = "hide"---------------------------------------------------
+exposures_PYCM <- addExposures(records, type = "PMCY")
+head(exposures_PYCM, n = 11)
+
+## ---- results = "asis", echo = FALSE-------------------------------------
+pander::pandoc.table(head(exposures_PYCM, n = 11))
+
+## ---- results = "hide"---------------------------------------------------
+exposures_PMCM <- addExposures(records, type = "PMCM")
+head(exposures_PMCM)
+
+## ---- results = "asis", echo = FALSE-------------------------------------
+pander::pandoc.table(head(exposures_PMCM))
+
+## ---- results = "hide"---------------------------------------------------
+exposures_PM_2019 <- addExposures(records, type = "PM", lower_year = 2019)
+exposures_PM_2019
+
+## ---- results = "asis", echo = FALSE-------------------------------------
+pander::pandoc.table(exposures_PM_2019)
+
+## ---- results = "hide"---------------------------------------------------
+exposures_PYCM_2019 <- addExposures(records, type = "PYCM", lower_year = 2019)
+exposures_PYCM_2019
+
+## ---- results = "asis", echo = FALSE-------------------------------------
+pander::pandoc.table(exposures_PYCM_2019)
+
+## ---- results = "hide"---------------------------------------------------
+exposures_mod <- exposures %>% inner_join(select(records, key, issue_age, gender), by = "key") %>%
+  mutate(attained_age = issue_age + duration - 1)
 head(exposures_mod)
 
 ## ---- results = "asis", echo = FALSE-------------------------------------
 pander::pandoc.table(head(exposures_mod))
 
 ## ---- results = "hide"---------------------------------------------------
-exposures_mod %>% mutate(attained_age = issue_age + duration - 1) %>% group_by(attained_age, gender) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)) %>% tail()
+exposures_mort <- exposures_mod %>% group_by(key) %>% mutate(exposure_mod = if_else(duration == max(duration), 1, exposure), death_cnt = if_else(duration == max(duration), 1, 0)) %>% ungroup()
+
+tail(exposures_mort, 4)
 
 ## ---- results = "asis", echo = FALSE-------------------------------------
-pander::pandoc.table(exposures_mod %>% mutate(attained_age = issue_age + duration - 1) %>% group_by(attained_age, gender) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)) %>% tail())
+pander::pandoc.table(tail(exposures_mort, 4))
+
+## ---- results = "hide"---------------------------------------------------
+duration_rates <- exposures_mort %>% group_by(duration) %>% summarise(q = sum(death_cnt)/sum(exposure_mod))
+
+## ---- results = "asis", echo = FALSE-------------------------------------
+pander::pandoc.table(exposures_mort %>% group_by(duration) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)))
+
+## ---- results = "hide"---------------------------------------------------
+attained_age_gender_rates <- exposures_mort %>% mutate(attained_age = issue_age + duration - 1) %>% group_by(attained_age, gender) %>% summarise(q = sum(death_cnt)/sum(exposure_mod))
+tail(attained_age_gender_rates)
+
+## ---- results = "asis", echo = FALSE-------------------------------------
+pander::pandoc.table(tail(attained_age_gender_rates))
+
+## ------------------------------------------------------------------------
+summary(expstudies::mortality_tables)
+
+## ---- results = "hide"---------------------------------------------------
+head(mortality_tables$AM92$AM92_Ultimate)
+
+## ---- results = "asis", echo = FALSE-------------------------------------
+pander::pandoc.table(head(mortality_tables$AM92$AM92_Ultimate))
+
+## ---- results = "hide"---------------------------------------------------
+head(left_join(exposures_mort, mortality_tables$AM92$AM92_Ultimate, by = "attained_age"))
+
+## ---- results = "asis", echo = FALSE-------------------------------------
+pander::pandoc.table(head(left_join(exposures_mort, select(mortality_tables$AM92$AM92_Ultimate, -table), by = "attained_age")))
 
 ## ---- results = "hide"---------------------------------------------------
 head(trans)
