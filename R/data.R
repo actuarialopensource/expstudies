@@ -19,12 +19,9 @@
 #' Used to demonstrate calculations.
 "exposures"
 
-#' Long format select SOA tables 1076-1085
+#' Mortality tables for A/E analysis
 #'
-#' Intended to be left joined to exposure frames.
-"CSO2001ANB_3NT2T_Select"
+#' A list containing several tidy mortality tables that can be joined to an exposure data frame.
+#' Find more tables here - github.com/ActuarialAnalyst/LongMortalityTables. Tables are from the SOA website.
+"mortality_tables"
 
-#' Long format ultimate SOA tables 1076-1085
-#'
-#' Intended to be left joined to exposure frames.
-"CSO2001ANB_3NT2T_Ultimate"

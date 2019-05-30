@@ -53,7 +53,7 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
   }
 
   #Increment up the start interval to the year prior lower_year to reduce calculation size.
-  #Filtered later for an exact lower truncation.
+  #Filtered later for an exact lower truncation. key_and_year increment is book-keeping
   if(!is.null(lower_year)){
     if(lower_year%%1 != 0) stop("lower_year must be an integer")
     mod_records <- mod_records %>%
@@ -116,7 +116,7 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
       dplyr::select(key, duration, start_int, end_int, exposure)
   }
 
-  #Add policy years, intervals are not split across calendar years allowing for calendar year studies.
+  #Add policy years, intervals are not split across calendar months allowing for calendar month studies.
   formatPYCM <- function(){
     PY_start <- addPY() %>% dplyr::mutate(PY_start = TRUE)
     CM_start <- addPM() %>% dplyr::mutate(start_int = lubridate::ceiling_date(start_int, unit = "month"), PY_start = FALSE) %>%
@@ -127,6 +127,7 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
       dplyr::select(key, duration, start_int, end_int, exposure)
   }
 
+  #Add policy months, intervals are not split across calendar years allowing for calendar year studies.
   formatPMCY <- function(){
     PM_start <- addPM() %>% dplyr::mutate(PM_start = TRUE)
     CY_start <- addPY() %>%
@@ -139,6 +140,7 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
       dplyr::select(key, duration, policy_month, start_int, end_int, exposure)
   }
 
+  #Add policy months, intervals are not split across calendar months allowing for calendar month studies.
   formatPMCM <- function(){
     PM_start <- addPM() %>% dplyr::mutate(PM_start = TRUE)
     CM_start <- addPM() %>% dplyr::mutate(start_int = lubridate::ceiling_date(start_int, unit = "month"), PM_start = FALSE) %>%
@@ -165,6 +167,7 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
     stop('!(type %in% c("PY", "PM", "PYCM", "PMCY", "PMCM"))')
   }
 
+  #key_and_year_increment comes back to join on the key and increment the years
   if(!is.null(lower_year)){
     result <- result %>% dplyr::inner_join(key_and_year_increment, by = "key") %>%
       dplyr::mutate(duration = duration + year_increment) %>%
@@ -174,5 +177,3 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
 
   result
 }
-
-#Test Travis CI
