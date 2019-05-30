@@ -70,14 +70,15 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<p>The expstudies package is meant to make analyzing life experience data easier. You will need to be able to manipulate data frames to effectively work with the package. We load dplyr for this along with magrittr for the “%&gt;%” operator.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(expstudies)
-<span class="kw">library</span>(dplyr)
+<p>The expstudies package is meant to make analyzing life experience data easier. How to use the package is best shown through example, so load up expstudies.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(expstudies)</code></pre></div>
+<p>You will need to be able to manipulate data frames to effectively work with this package. I use dplyr from the tidyverse for this. We load dplyr along with magrittr for the “%&gt;%” operator.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
 <span class="kw">library</span>(magrittr)</code></pre></div>
 <div id="making-exposures-from-records" class="section level2">
 <h2>Making exposures from records</h2>
-<p>Synthetic data called “records” is included in the package. To make an exposure frame the data must have “key”, “start”, and “end” columns with unique values in the key column.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">expstudies<span class="op">::</span>records</code></pre></div>
+<p>Some synthetic data called “records” is included in the package. The data must have a “key”, “start”, and “end” column or the package will throw an error. It is also a requirement that the key column have no duplicate values.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">records</code></pre></div>
 <table style="width:79%;">
 <colgroup>
 <col width="15%"></col>
@@ -112,7 +113,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </tr>
 </tbody>
 </table>
-<p>The addExposures function creates rows representing exposures between the start and end date with calculated exposures. By default exposure rows are created for each policy year.</p>
+<p>The addExposures function creates rows for each policy year between the start and end date. We use 365.25 days as a full policy year.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures &lt;-<span class="st"> </span><span class="kw">addExposures</span>(records)
 <span class="kw">head</span>(exposures)</code></pre></div>
 <table style="width:81%;">
@@ -177,12 +178,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </tr>
 </tbody>
 </table>
-<p>One exposure unit is 365.25 days so the exposure column will be either slightly above or below 1. Giving days different weights depending on if they are in a leap year or not yields higher mortality rates for leap years when mortality is constant which is not desirable.</p>
-<div id="addexposures-arguments" class="section level3">
-<h3>addExposures() arguments</h3>
-<div id="type" class="section level4">
-<h4>type</h4>
-<p>There are several options available for exposure calculations. For example, we can create exposure rows by policy month.</p>
+<p>There is also an option for calculating monthly policy records in case we want to model skewness within policy years. This isn’t the default because a single record could result in hundreds of rows in the exposures data frame.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_PM &lt;-<span class="st"> </span><span class="kw">addExposures</span>(records, <span class="dt">type =</span> <span class="st">&quot;PM&quot;</span>)
 <span class="kw">head</span>(exposures_PM)</code></pre></div>
 <table>
@@ -255,687 +251,22 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </tr>
 </tbody>
 </table>
-<p>The policy year and policy month options only do policy anniversary studies because exposure intervals may cross calendar years. There are options for creating exposure rows that do not cross calendar years or calendar months to allow for calendar year or calendar month studies.</p>
-<p>Policy year with calendar year:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_PYCY &lt;-<span class="st"> </span><span class="kw">addExposures</span>(records, <span class="dt">type =</span> <span class="st">&quot;PYCY&quot;</span>)
-<span class="kw">head</span>(exposures_PYCY)</code></pre></div>
-<table style="width:81%;">
-<colgroup>
-<col width="15%"></col>
-<col width="15%"></col>
-<col width="18%"></col>
-<col width="18%"></col>
-<col width="13%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">key</th>
-<th align="center">duration</th>
-<th align="center">start_int</th>
-<th align="center">end_int</th>
-<th align="center">exposure</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-04-10</td>
-<td align="center">2010-12-31</td>
-<td align="center">0.7283</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2011-01-01</td>
-<td align="center">2011-04-09</td>
-<td align="center">0.271</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">2</td>
-<td align="center">2011-04-10</td>
-<td align="center">2011-12-31</td>
-<td align="center">0.7283</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">2</td>
-<td align="center">2012-01-01</td>
-<td align="center">2012-04-09</td>
-<td align="center">0.2738</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">3</td>
-<td align="center">2012-04-10</td>
-<td align="center">2012-12-31</td>
-<td align="center">0.7283</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">3</td>
-<td align="center">2013-01-01</td>
-<td align="center">2013-04-09</td>
-<td align="center">0.271</td>
-</tr>
-</tbody>
-</table>
-<p>Policy year with calendar month:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_PYCM &lt;-<span class="st"> </span><span class="kw">addExposures</span>(records, <span class="dt">type =</span> <span class="st">&quot;PYCM&quot;</span>)
-<span class="kw">head</span>(exposures_PYCM, <span class="dt">n =</span> <span class="dv">15</span>)</code></pre></div>
-<table style="width:81%;">
-<colgroup>
-<col width="15%"></col>
-<col width="15%"></col>
-<col width="18%"></col>
-<col width="18%"></col>
-<col width="13%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">key</th>
-<th align="center">duration</th>
-<th align="center">start_int</th>
-<th align="center">end_int</th>
-<th align="center">exposure</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-04-10</td>
-<td align="center">2010-04-30</td>
-<td align="center">0.05749</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-05-01</td>
-<td align="center">2010-05-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-06-01</td>
-<td align="center">2010-06-30</td>
-<td align="center">0.08214</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-07-01</td>
-<td align="center">2010-07-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-08-01</td>
-<td align="center">2010-08-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-09-01</td>
-<td align="center">2010-09-30</td>
-<td align="center">0.08214</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-10-01</td>
-<td align="center">2010-10-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-11-01</td>
-<td align="center">2010-11-30</td>
-<td align="center">0.08214</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-12-01</td>
-<td align="center">2010-12-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2011-01-01</td>
-<td align="center">2011-01-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2011-02-01</td>
-<td align="center">2011-02-28</td>
-<td align="center">0.07666</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2011-03-01</td>
-<td align="center">2011-03-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2011-04-01</td>
-<td align="center">2011-04-09</td>
-<td align="center">0.02464</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">2</td>
-<td align="center">2011-04-10</td>
-<td align="center">2011-04-30</td>
-<td align="center">0.05749</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">2</td>
-<td align="center">2011-05-01</td>
-<td align="center">2011-05-31</td>
-<td align="center">0.08487</td>
-</tr>
-</tbody>
-</table>
-<p>Policy month with calendar year:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_PYCM &lt;-<span class="st"> </span><span class="kw">addExposures</span>(records, <span class="dt">type =</span> <span class="st">&quot;PMCY&quot;</span>)
-<span class="kw">head</span>(exposures_PYCM, <span class="dt">n =</span> <span class="dv">11</span>)</code></pre></div>
-<table>
-<colgroup>
-<col width="15%"></col>
-<col width="15%"></col>
-<col width="20%"></col>
-<col width="17%"></col>
-<col width="17%"></col>
-<col width="13%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">key</th>
-<th align="center">duration</th>
-<th align="center">policy_month</th>
-<th align="center">start_int</th>
-<th align="center">end_int</th>
-<th align="center">exposure</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">2010-04-10</td>
-<td align="center">2010-05-09</td>
-<td align="center">0.08214</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2</td>
-<td align="center">2010-05-10</td>
-<td align="center">2010-06-09</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">3</td>
-<td align="center">2010-06-10</td>
-<td align="center">2010-07-09</td>
-<td align="center">0.08214</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">4</td>
-<td align="center">2010-07-10</td>
-<td align="center">2010-08-09</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">5</td>
-<td align="center">2010-08-10</td>
-<td align="center">2010-09-09</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">6</td>
-<td align="center">2010-09-10</td>
-<td align="center">2010-10-09</td>
-<td align="center">0.08214</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">7</td>
-<td align="center">2010-10-10</td>
-<td align="center">2010-11-09</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">8</td>
-<td align="center">2010-11-10</td>
-<td align="center">2010-12-09</td>
-<td align="center">0.08214</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">9</td>
-<td align="center">2010-12-10</td>
-<td align="center">2010-12-31</td>
-<td align="center">0.06023</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">9</td>
-<td align="center">2011-01-01</td>
-<td align="center">2011-01-09</td>
-<td align="center">0.02464</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">10</td>
-<td align="center">2011-01-10</td>
-<td align="center">2011-02-09</td>
-<td align="center">0.08487</td>
-</tr>
-</tbody>
-</table>
-<p>Policy month with calendar month:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_PMCM &lt;-<span class="st"> </span><span class="kw">addExposures</span>(records, <span class="dt">type =</span> <span class="st">&quot;PMCM&quot;</span>)
-<span class="kw">head</span>(exposures_PMCM)</code></pre></div>
-<table>
-<colgroup>
-<col width="15%"></col>
-<col width="15%"></col>
-<col width="20%"></col>
-<col width="17%"></col>
-<col width="17%"></col>
-<col width="13%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">key</th>
-<th align="center">duration</th>
-<th align="center">policy_month</th>
-<th align="center">start_int</th>
-<th align="center">end_int</th>
-<th align="center">exposure</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">2010-04-10</td>
-<td align="center">2010-04-30</td>
-<td align="center">0.05749</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">2010-05-01</td>
-<td align="center">2010-05-09</td>
-<td align="center">0.02464</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2</td>
-<td align="center">2010-05-10</td>
-<td align="center">2010-05-31</td>
-<td align="center">0.06023</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2</td>
-<td align="center">2010-06-01</td>
-<td align="center">2010-06-09</td>
-<td align="center">0.02464</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">3</td>
-<td align="center">2010-06-10</td>
-<td align="center">2010-06-30</td>
-<td align="center">0.05749</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">3</td>
-<td align="center">2010-07-01</td>
-<td align="center">2010-07-09</td>
-<td align="center">0.02464</td>
-</tr>
-</tbody>
-</table>
 </div>
-<div id="lower_year" class="section level4">
-<h4>lower_year</h4>
-<p>There is an argument in the addExposures function that allows for truncation by a lower year. Exposure rows will only be created if the start interval begins during or after the specified lower truncation year. This can dramatically reduce computation time and memory use depending on the structure of your data and the type of exposure rows you are creating.</p>
-<p>Policy month with lower truncation year:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_PM_<span class="dv">2019</span> &lt;-<span class="st"> </span><span class="kw">addExposures</span>(records, <span class="dt">type =</span> <span class="st">&quot;PM&quot;</span>, <span class="dt">lower_year =</span> <span class="dv">2019</span>)
-exposures_PM_<span class="dv">2019</span></code></pre></div>
-<table>
-<colgroup>
-<col width="15%"></col>
-<col width="15%"></col>
-<col width="20%"></col>
-<col width="17%"></col>
-<col width="17%"></col>
-<col width="13%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">key</th>
-<th align="center">duration</th>
-<th align="center">policy_month</th>
-<th align="center">start_int</th>
-<th align="center">end_int</th>
-<th align="center">exposure</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">9</td>
-<td align="center">10</td>
-<td align="center">2019-01-10</td>
-<td align="center">2019-02-09</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">9</td>
-<td align="center">11</td>
-<td align="center">2019-02-10</td>
-<td align="center">2019-03-09</td>
-<td align="center">0.07666</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">9</td>
-<td align="center">12</td>
-<td align="center">2019-03-10</td>
-<td align="center">2019-04-04</td>
-<td align="center">0.07118</td>
-</tr>
-<tr class="even">
-<td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">1</td>
-<td align="center">2019-01-01</td>
-<td align="center">2019-01-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="odd">
-<td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">2</td>
-<td align="center">2019-02-01</td>
-<td align="center">2019-02-28</td>
-<td align="center">0.07666</td>
-</tr>
-<tr class="even">
-<td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">3</td>
-<td align="center">2019-03-01</td>
-<td align="center">2019-03-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="odd">
-<td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">4</td>
-<td align="center">2019-04-01</td>
-<td align="center">2019-04-04</td>
-<td align="center">0.01095</td>
-</tr>
-</tbody>
-</table>
-<p>Policy year with calendar month and lower truncation year:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_PYCM_<span class="dv">2019</span> &lt;-<span class="st"> </span><span class="kw">addExposures</span>(records, <span class="dt">type =</span> <span class="st">&quot;PYCM&quot;</span>, <span class="dt">lower_year =</span> <span class="dv">2019</span>)
-exposures_PYCM_<span class="dv">2019</span></code></pre></div>
-<table style="width:81%;">
-<colgroup>
-<col width="15%"></col>
-<col width="15%"></col>
-<col width="18%"></col>
-<col width="18%"></col>
-<col width="13%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">key</th>
-<th align="center">duration</th>
-<th align="center">start_int</th>
-<th align="center">end_int</th>
-<th align="center">exposure</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">9</td>
-<td align="center">2019-01-01</td>
-<td align="center">2019-01-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">9</td>
-<td align="center">2019-02-01</td>
-<td align="center">2019-02-28</td>
-<td align="center">0.07666</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">9</td>
-<td align="center">2019-03-01</td>
-<td align="center">2019-03-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">9</td>
-<td align="center">2019-04-01</td>
-<td align="center">2019-04-04</td>
-<td align="center">0.01095</td>
-</tr>
-<tr class="odd">
-<td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">2019-01-01</td>
-<td align="center">2019-01-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="even">
-<td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">2019-02-01</td>
-<td align="center">2019-02-28</td>
-<td align="center">0.07666</td>
-</tr>
-<tr class="odd">
-<td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">2019-03-01</td>
-<td align="center">2019-03-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="even">
-<td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">2019-04-01</td>
-<td align="center">2019-04-04</td>
-<td align="center">0.01095</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div id="adding-additional-information-to-the-calculated-exposures" class="section level3">
-<h3>Adding additional information to the calculated exposures</h3>
-<p>We can add additional information by joining our original records to the created exposures by the key. Below we join the gender and issue age from our original record to the exposure frame and calculate the attained age.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_mod &lt;-<span class="st"> </span>exposures <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">inner_join</span>(<span class="kw">select</span>(records, key, issue_age, gender), <span class="dt">by =</span> <span class="st">&quot;key&quot;</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">attained_age =</span> issue_age <span class="op">+</span><span class="st"> </span>duration <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)
-<span class="kw">head</span>(exposures_mod)</code></pre></div>
-<table style="width:100%;">
-<caption>Table continues below</caption>
-<colgroup>
-<col width="13%"></col>
-<col width="13%"></col>
-<col width="16%"></col>
-<col width="16%"></col>
-<col width="13%"></col>
-<col width="15%"></col>
-<col width="10%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">key</th>
-<th align="center">duration</th>
-<th align="center">start_int</th>
-<th align="center">end_int</th>
-<th align="center">exposure</th>
-<th align="center">issue_age</th>
-<th align="center">gender</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-04-10</td>
-<td align="center">2011-04-09</td>
-<td align="center">0.9993</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">2</td>
-<td align="center">2011-04-10</td>
-<td align="center">2012-04-09</td>
-<td align="center">1.002</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">3</td>
-<td align="center">2012-04-10</td>
-<td align="center">2013-04-09</td>
-<td align="center">0.9993</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">4</td>
-<td align="center">2013-04-10</td>
-<td align="center">2014-04-09</td>
-<td align="center">0.9993</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">5</td>
-<td align="center">2014-04-10</td>
-<td align="center">2015-04-09</td>
-<td align="center">0.9993</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">6</td>
-<td align="center">2015-04-10</td>
-<td align="center">2016-04-09</td>
-<td align="center">1.002</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-</tbody>
-</table>
-<table style="width:19%;">
-<colgroup>
-<col width="19%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">attained_age</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">35</td>
-</tr>
-<tr class="even">
-<td align="center">36</td>
-</tr>
-<tr class="odd">
-<td align="center">37</td>
-</tr>
-<tr class="even">
-<td align="center">38</td>
-</tr>
-<tr class="odd">
-<td align="center">39</td>
-</tr>
-<tr class="even">
-<td align="center">40</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div id="mortalitylapse-rate-calculations" class="section level2">
-<h2>Mortality/Lapse rate calculations</h2>
-<div id="rate-calculations" class="section level3">
-<h3>Rate calculations</h3>
-<p>Add a death indicator and use a full exposure in the year of death when performing a mortality study.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_mort &lt;-<span class="st"> </span>exposures_mod <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(key) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">exposure_mod =</span> <span class="kw">if_else</span>(duration <span class="op">==</span><span class="st"> </span><span class="kw">max</span>(duration), <span class="dv">1</span>, exposure), <span class="dt">death_cnt =</span> <span class="kw">if_else</span>(duration <span class="op">==</span><span class="st"> </span><span class="kw">max</span>(duration), <span class="dv">1</span>, <span class="dv">0</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ungroup</span>()
+<div id="mortalitylapse-studies" class="section level1">
+<h1>Mortality/Lapse studies</h1>
+<p>Let’s modify exposures in the year of death and add an indicator in the duration of death.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_mod &lt;-<span class="st"> </span>exposures <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(key) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">exposure_mod =</span> <span class="kw">if_else</span>(duration <span class="op">==</span><span class="st"> </span><span class="kw">max</span>(duration), <span class="dv">1</span>, exposure), <span class="dt">death_cnt =</span> <span class="kw">if_else</span>(duration <span class="op">==</span><span class="st"> </span><span class="kw">max</span>(duration), <span class="dv">1</span>, <span class="dv">0</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ungroup</span>()
 
-<span class="kw">tail</span>(exposures_mort, <span class="dv">4</span>)</code></pre></div>
-<table style="width:100%;">
-<caption>Table continues below</caption>
+<span class="kw">tail</span>(exposures_mod, <span class="dv">4</span>)</code></pre></div>
+<table>
 <colgroup>
-<col width="13%"></col>
-<col width="13%"></col>
-<col width="16%"></col>
-<col width="16%"></col>
-<col width="13%"></col>
+<col width="12%"></col>
+<col width="12%"></col>
 <col width="15%"></col>
-<col width="10%"></col>
+<col width="15%"></col>
+<col width="12%"></col>
+<col width="17%"></col>
+<col width="12%"></col>
 </colgroup>
 <thead>
 <tr class="header">
@@ -944,8 +275,8 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 <th align="center">start_int</th>
 <th align="center">end_int</th>
 <th align="center">exposure</th>
-<th align="center">issue_age</th>
-<th align="center">gender</th>
+<th align="center">exposure_mod</th>
+<th align="center">death_cnt</th>
 </tr>
 </thead>
 <tbody>
@@ -955,8 +286,8 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 <td align="center">2016-01-01</td>
 <td align="center">2016-12-31</td>
 <td align="center">1.002</td>
-<td align="center">30</td>
-<td align="center">F</td>
+<td align="center">1.002</td>
+<td align="center">0</td>
 </tr>
 <tr class="even">
 <td align="center">D68554D5</td>
@@ -964,8 +295,8 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 <td align="center">2017-01-01</td>
 <td align="center">2017-12-31</td>
 <td align="center">0.9993</td>
-<td align="center">30</td>
-<td align="center">F</td>
+<td align="center">0.9993</td>
+<td align="center">0</td>
 </tr>
 <tr class="odd">
 <td align="center">D68554D5</td>
@@ -973,8 +304,8 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 <td align="center">2018-01-01</td>
 <td align="center">2018-12-31</td>
 <td align="center">0.9993</td>
-<td align="center">30</td>
-<td align="center">F</td>
+<td align="center">0.9993</td>
+<td align="center">0</td>
 </tr>
 <tr class="even">
 <td align="center">D68554D5</td>
@@ -982,49 +313,13 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 <td align="center">2019-01-01</td>
 <td align="center">2019-04-04</td>
 <td align="center">0.2574</td>
-<td align="center">30</td>
-<td align="center">F</td>
-</tr>
-</tbody>
-</table>
-<table style="width:57%;">
-<colgroup>
-<col width="20%"></col>
-<col width="20%"></col>
-<col width="15%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">attained_age</th>
-<th align="center">exposure_mod</th>
-<th align="center">death_cnt</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">41</td>
-<td align="center">1.002</td>
-<td align="center">0</td>
-</tr>
-<tr class="even">
-<td align="center">42</td>
-<td align="center">0.9993</td>
-<td align="center">0</td>
-</tr>
-<tr class="odd">
-<td align="center">43</td>
-<td align="center">0.9993</td>
-<td align="center">0</td>
-</tr>
-<tr class="even">
-<td align="center">44</td>
 <td align="center">1</td>
 <td align="center">1</td>
 </tr>
 </tbody>
 </table>
-<p>We then aggregate by duration to calculate mortality rates.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">duration_rates &lt;-<span class="st"> </span>exposures_mort <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(duration) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">q =</span> <span class="kw">sum</span>(death_cnt)<span class="op">/</span><span class="kw">sum</span>(exposure_mod))</code></pre></div>
+<p>Now we can aggregate by duration to calculate mortality rates.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_mod <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(duration) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">q =</span> <span class="kw">sum</span>(death_cnt)<span class="op">/</span><span class="kw">sum</span>(exposure_mod))</code></pre></div>
 <table style="width:26%;">
 <colgroup>
 <col width="15%"></col>
@@ -1099,9 +394,130 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 </tr>
 </tbody>
 </table>
-<p>Or by attained age and gender.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">attained_age_gender_rates &lt;-<span class="st"> </span>exposures_mort <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">attained_age =</span> issue_age <span class="op">+</span><span class="st"> </span>duration <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(attained_age, gender) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">q =</span> <span class="kw">sum</span>(death_cnt)<span class="op">/</span><span class="kw">sum</span>(exposure_mod))
-<span class="kw">tail</span>(attained_age_gender_rates)</code></pre></div>
+<div id="adding-additional-information" class="section level2">
+<h2>Adding additional information</h2>
+<p>We can add additional information by joining on our key.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_mod &lt;-<span class="st"> </span>exposures_mod <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">inner_join</span>(<span class="kw">select</span>(records, key, issue_age, gender), <span class="dt">by =</span> <span class="st">&quot;key&quot;</span>)
+<span class="kw">head</span>(exposures_mod)</code></pre></div>
+<table style="width:100%;">
+<caption>Table continues below</caption>
+<colgroup>
+<col width="15%"></col>
+<col width="15%"></col>
+<col width="17%"></col>
+<col width="17%"></col>
+<col width="15%"></col>
+<col width="19%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">key</th>
+<th align="center">duration</th>
+<th align="center">start_int</th>
+<th align="center">end_int</th>
+<th align="center">exposure</th>
+<th align="center">exposure_mod</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">B10251C8</td>
+<td align="center">1</td>
+<td align="center">2010-04-10</td>
+<td align="center">2011-04-09</td>
+<td align="center">0.9993</td>
+<td align="center">0.9993</td>
+</tr>
+<tr class="even">
+<td align="center">B10251C8</td>
+<td align="center">2</td>
+<td align="center">2011-04-10</td>
+<td align="center">2012-04-09</td>
+<td align="center">1.002</td>
+<td align="center">1.002</td>
+</tr>
+<tr class="odd">
+<td align="center">B10251C8</td>
+<td align="center">3</td>
+<td align="center">2012-04-10</td>
+<td align="center">2013-04-09</td>
+<td align="center">0.9993</td>
+<td align="center">0.9993</td>
+</tr>
+<tr class="even">
+<td align="center">B10251C8</td>
+<td align="center">4</td>
+<td align="center">2013-04-10</td>
+<td align="center">2014-04-09</td>
+<td align="center">0.9993</td>
+<td align="center">0.9993</td>
+</tr>
+<tr class="odd">
+<td align="center">B10251C8</td>
+<td align="center">5</td>
+<td align="center">2014-04-10</td>
+<td align="center">2015-04-09</td>
+<td align="center">0.9993</td>
+<td align="center">0.9993</td>
+</tr>
+<tr class="even">
+<td align="center">B10251C8</td>
+<td align="center">6</td>
+<td align="center">2015-04-10</td>
+<td align="center">2016-04-09</td>
+<td align="center">1.002</td>
+<td align="center">1.002</td>
+</tr>
+</tbody>
+</table>
+<table style="width:44%;">
+<colgroup>
+<col width="16%"></col>
+<col width="16%"></col>
+<col width="11%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">death_cnt</th>
+<th align="center">issue_age</th>
+<th align="center">gender</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">0</td>
+<td align="center">35</td>
+<td align="center">M</td>
+</tr>
+<tr class="even">
+<td align="center">0</td>
+<td align="center">35</td>
+<td align="center">M</td>
+</tr>
+<tr class="odd">
+<td align="center">0</td>
+<td align="center">35</td>
+<td align="center">M</td>
+</tr>
+<tr class="even">
+<td align="center">0</td>
+<td align="center">35</td>
+<td align="center">M</td>
+</tr>
+<tr class="odd">
+<td align="center">0</td>
+<td align="center">35</td>
+<td align="center">M</td>
+</tr>
+<tr class="even">
+<td align="center">0</td>
+<td align="center">35</td>
+<td align="center">M</td>
+</tr>
+</tbody>
+</table>
+<p>Now we can calculate mortality by attained age. Or by attained age and gender.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_mod <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">attained_age =</span> issue_age <span class="op">+</span><span class="st"> </span>duration <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(attained_age, gender) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">q =</span> <span class="kw">sum</span>(death_cnt)<span class="op">/</span><span class="kw">sum</span>(exposure_mod)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">tail</span>()</code></pre></div>
 <table style="width:38%;">
 <colgroup>
 <col width="20%"></col>
@@ -1149,205 +565,9 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 </tbody>
 </table>
 </div>
-<div id="expected-mortality" class="section level3">
-<h3>Expected mortality</h3>
-<p>Some mortality tables have been loaded in an easy to join format so that users can conduct A/E analysis.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(expstudies<span class="op">::</span>mortality_tables)
-<span class="co">#&gt;                                         Length Class  Mode</span>
-<span class="co">#&gt; AM92                                    3      -none- list</span>
-<span class="co">#&gt; GAM1983                                 3      -none- list</span>
-<span class="co">#&gt; UP1984                                  3      tbl_df list</span>
-<span class="co">#&gt; VBT2015_SmokerDistinct_ALB              2      -none- list</span>
-<span class="co">#&gt; CSO2017_Unloaded_PreferredStructure_ALB 2      -none- list</span>
-<span class="co">#&gt; CSO2017_Loaded_PreferredStructure_ALB   2      -none- list</span></code></pre></div>
-<p>The “table” column includes the table identifier from the SOA website’s collection of mortality tables.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(mortality_tables<span class="op">$</span>AM92<span class="op">$</span>AM92_Ultimate)</code></pre></div>
-<table style="width:46%;">
-<colgroup>
-<col width="11%"></col>
-<col width="20%"></col>
-<col width="13%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">table</th>
-<th align="center">attained_age</th>
-<th align="center">q_ult</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">t2360</td>
-<td align="center">19</td>
-<td align="center">0.000587</td>
-</tr>
-<tr class="even">
-<td align="center">t2360</td>
-<td align="center">20</td>
-<td align="center">0.000582</td>
-</tr>
-<tr class="odd">
-<td align="center">t2360</td>
-<td align="center">21</td>
-<td align="center">0.000577</td>
-</tr>
-<tr class="even">
-<td align="center">t2360</td>
-<td align="center">22</td>
-<td align="center">0.000572</td>
-</tr>
-<tr class="odd">
-<td align="center">t2360</td>
-<td align="center">23</td>
-<td align="center">0.000569</td>
-</tr>
-<tr class="even">
-<td align="center">t2360</td>
-<td align="center">24</td>
-<td align="center">0.000567</td>
-</tr>
-</tbody>
-</table>
-<p>We join “q_ult” to the mortality table to the data frame by “attained age”.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">left_join</span>(exposures_mort, mortality_tables<span class="op">$</span>AM92<span class="op">$</span>AM92_Ultimate, <span class="dt">by =</span> <span class="st">&quot;attained_age&quot;</span>))</code></pre></div>
-<table style="width:100%;">
-<caption>Table continues below</caption>
-<colgroup>
-<col width="13%"></col>
-<col width="13%"></col>
-<col width="16%"></col>
-<col width="16%"></col>
-<col width="13%"></col>
-<col width="15%"></col>
-<col width="10%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">key</th>
-<th align="center">duration</th>
-<th align="center">start_int</th>
-<th align="center">end_int</th>
-<th align="center">exposure</th>
-<th align="center">issue_age</th>
-<th align="center">gender</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">1</td>
-<td align="center">2010-04-10</td>
-<td align="center">2011-04-09</td>
-<td align="center">0.9993</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">2</td>
-<td align="center">2011-04-10</td>
-<td align="center">2012-04-09</td>
-<td align="center">1.002</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">3</td>
-<td align="center">2012-04-10</td>
-<td align="center">2013-04-09</td>
-<td align="center">0.9993</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">4</td>
-<td align="center">2013-04-10</td>
-<td align="center">2014-04-09</td>
-<td align="center">0.9993</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-<tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">5</td>
-<td align="center">2014-04-10</td>
-<td align="center">2015-04-09</td>
-<td align="center">0.9993</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-<tr class="even">
-<td align="center">B10251C8</td>
-<td align="center">6</td>
-<td align="center">2015-04-10</td>
-<td align="center">2016-04-09</td>
-<td align="center">1.002</td>
-<td align="center">35</td>
-<td align="center">M</td>
-</tr>
-</tbody>
-</table>
-<table style="width:75%;">
-<colgroup>
-<col width="20%"></col>
-<col width="20%"></col>
-<col width="16%"></col>
-<col width="16%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">attained_age</th>
-<th align="center">exposure_mod</th>
-<th align="center">death_cnt</th>
-<th align="center">q_ult</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">35</td>
-<td align="center">0.9993</td>
-<td align="center">0</td>
-<td align="center">0.000689</td>
-</tr>
-<tr class="even">
-<td align="center">36</td>
-<td align="center">1.002</td>
-<td align="center">0</td>
-<td align="center">0.000724</td>
-</tr>
-<tr class="odd">
-<td align="center">37</td>
-<td align="center">0.9993</td>
-<td align="center">0</td>
-<td align="center">0.000765</td>
-</tr>
-<tr class="even">
-<td align="center">38</td>
-<td align="center">0.9993</td>
-<td align="center">0</td>
-<td align="center">0.000813</td>
-</tr>
-<tr class="odd">
-<td align="center">39</td>
-<td align="center">0.9993</td>
-<td align="center">0</td>
-<td align="center">0.00087</td>
-</tr>
-<tr class="even">
-<td align="center">40</td>
-<td align="center">1.002</td>
-<td align="center">0</td>
-<td align="center">0.000937</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
 <div id="premium-pattern" class="section level2">
 <h2>Premium Pattern</h2>
-<p>We assume that the user has dated transactions with a key that corresponds to the key in the record file. A simulated transaction data frame “trans” comes with the package.</p>
+<p>We assume that the user has dated transactions with a key that corresponds to the key in the record file. Some simulated transactions come with the package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(trans)</code></pre></div>
 <table style="width:40%;">
 <colgroup>
@@ -1759,6 +979,7 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 
 
