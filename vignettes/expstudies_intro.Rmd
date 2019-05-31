@@ -14,13 +14,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-The expstudies package is meant to make analyzing life experience data easier. How to use the package is best shown through example, so load up expstudies.
+The expstudies package is meant to make analyzing life experience data easier. You will need to be able to manipulate data frames to effectively work with the package. We load dplyr for this along with magrittr for the "%>%" operator.
 
-```{r setup}
-library(expstudies)
-```
-You will need to be able to manipulate data frames to effectively work with this package. I use dplyr from the tidyverse for this. We load dplyr along with magrittr for the "%>%" operator.
 ```{r message = FALSE}
+library(expstudies)
 library(dplyr)
 library(magrittr)
 ```
@@ -31,14 +28,15 @@ library(pander)
 ```
 
 ##Making exposures from records
-Some synthetic data called "records" is included in the package. The data must have a "key", "start", and "end" column or the package will throw an error. It is also a requirement that the key column have no duplicate values. 
+
+Synthetic data called "records" is included in the package. To make an exposure frame the data must have "key", "start", and "end" columns with unique values in the key column.
 ```{r, results = "hide"}
-records
+expstudies::records
 ```
 ```{r, results = "asis", echo = FALSE}
 pander::pandoc.table(records)
 ```
-The addExposures function creates rows for each policy year between the start and end date. We use 365.25 days as a full policy year. 
+The addExposures function creates rows representing exposures between the start and end date with calculated exposures. By default exposure rows are created for each policy year.
 ```{r, results = "hide"}
 exposures <- addExposures(records)
 head(exposures)
@@ -46,7 +44,14 @@ head(exposures)
 ```{r, results = "asis", echo = FALSE}
 pander::pandoc.table(head(exposures))
 ```
-There is also an option for calculating monthly policy records in case we want to model skewness within policy years. This isn't the default because a single record could result in hundreds of rows in the exposures data frame.
+One exposure unit is 365.25 days so the exposure column will be either slightly above or below 1. Giving days different weights depending on if they are in a leap year or not yields higher mortality rates for leap years when mortality is constant which is not desirable.
+
+###addExposures() arguments 
+
+####type
+
+There are several options available for exposure calculations. For example, we can create exposure rows by policy month.
+
 ```{r, results = "hide"}
 exposures_PM <- addExposures(records, type = "PM")
 head(exposures_PM)
@@ -55,41 +60,135 @@ head(exposures_PM)
 pander::pandoc.table(head(exposures_PM))
 ```
 
-#Mortality/Lapse studies
-Let's modify exposures in the year of death and add an indicator in the duration of death.
-```{r, results = "hide"}
-exposures_mod <- exposures %>% group_by(key) %>% mutate(exposure_mod = if_else(duration == max(duration), 1, exposure), death_cnt = if_else(duration == max(duration), 1, 0)) %>% ungroup()
+The policy year and policy month options only do policy anniversary studies because exposure intervals may cross calendar years. There are options for creating exposure rows that do not cross calendar years or calendar months to allow for calendar year or calendar month studies.
 
-tail(exposures_mod, 4)
+Policy year with calendar year:
+
+```{r, results = "hide"}
+exposures_PYCY <- addExposures(records, type = "PYCY")
+head(exposures_PYCY)
 ```
 ```{r, results = "asis", echo = FALSE}
-pander::pandoc.table(tail(exposures_mod, 4))
+pander::pandoc.table(head(exposures_PYCY))
 ```
-Now we can aggregate by duration to calculate mortality rates.
+
+Policy year with calendar month:
+
 ```{r, results = "hide"}
-exposures_mod %>% group_by(duration) %>% summarise(q = sum(death_cnt)/sum(exposure_mod))
+exposures_PYCM <- addExposures(records, type = "PYCM")
+head(exposures_PYCM, n = 15)
 ```
 ```{r, results = "asis", echo = FALSE}
-pander::pandoc.table(exposures_mod %>% group_by(duration) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)))
+pander::pandoc.table(head(exposures_PYCM, n = 15))
 ```
-##Adding additional information
-We can add additional information by joining on our key.
+
+Policy month with calendar year:
+
 ```{r, results = "hide"}
-exposures_mod <- exposures_mod %>% inner_join(select(records, key, issue_age, gender), by = "key")
+exposures_PYCM <- addExposures(records, type = "PMCY")
+head(exposures_PYCM, n = 11)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_PYCM, n = 11))
+```
+
+Policy month with calendar month:
+
+```{r, results = "hide"}
+exposures_PMCM <- addExposures(records, type = "PMCM")
+head(exposures_PMCM)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_PMCM))
+```
+
+####lower_year
+
+There is an argument in the addExposures function that allows for truncation by a lower year. Exposure rows will only be created if the start interval begins during or after the specified lower truncation year. This can dramatically reduce computation time and memory use depending on the structure of your data and the type of exposure rows you are creating. 
+
+Policy month with lower truncation year:
+```{r, results = "hide"}
+exposures_PM_2019 <- addExposures(records, type = "PM", lower_year = 2019)
+exposures_PM_2019
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(exposures_PM_2019)
+```
+
+Policy year with calendar month and lower truncation year:
+```{r, results = "hide"}
+exposures_PYCM_2019 <- addExposures(records, type = "PYCM", lower_year = 2019)
+exposures_PYCM_2019
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(exposures_PYCM_2019)
+```
+
+###Adding additional information to the calculated exposures
+
+We can add additional information by joining our original records to the created exposures by the key. Below we join the gender and issue age from our original record to the exposure frame and calculate the attained age.
+```{r, results = "hide"}
+exposures_mod <- exposures %>% inner_join(select(records, key, issue_age, gender), by = "key") %>%
+  mutate(attained_age = issue_age + duration - 1)
 head(exposures_mod)
 ```
 ```{r, results = "asis", echo = FALSE}
 pander::pandoc.table(head(exposures_mod))
 ```
-Now we can calculate mortality by attained age. Or by attained age and gender.
+
+##Mortality/Lapse rate calculations
+
+###Rate calculations
+
+Add a death indicator and use a full exposure in the year of death when performing a mortality study.
 ```{r, results = "hide"}
-exposures_mod %>% mutate(attained_age = issue_age + duration - 1) %>% group_by(attained_age, gender) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)) %>% tail()
+exposures_mort <- exposures_mod %>% group_by(key) %>% mutate(exposure_mod = if_else(duration == max(duration), 1, exposure), death_cnt = if_else(duration == max(duration), 1, 0)) %>% ungroup()
+
+tail(exposures_mort, 4)
 ```
 ```{r, results = "asis", echo = FALSE}
-pander::pandoc.table(exposures_mod %>% mutate(attained_age = issue_age + duration - 1) %>% group_by(attained_age, gender) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)) %>% tail())
+pander::pandoc.table(tail(exposures_mort, 4))
 ```
+We then aggregate by duration to calculate mortality rates.
+```{r, results = "hide"}
+duration_rates <- exposures_mort %>% group_by(duration) %>% summarise(q = sum(death_cnt)/sum(exposure_mod))
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(exposures_mort %>% group_by(duration) %>% summarise(q = sum(death_cnt)/sum(exposure_mod)))
+```
+Or by attained age and gender.
+```{r, results = "hide"}
+attained_age_gender_rates <- exposures_mort %>% mutate(attained_age = issue_age + duration - 1) %>% group_by(attained_age, gender) %>% summarise(q = sum(death_cnt)/sum(exposure_mod))
+tail(attained_age_gender_rates)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(tail(attained_age_gender_rates))
+```
+
+###Expected mortality
+
+Some mortality tables have been loaded in an easy to join format so that users can conduct A/E analysis.
+```{r}
+summary(expstudies::mortality_tables)
+```
+The "table" column includes the table identifier from the SOA website's collection of mortality tables.
+```{r, results = "hide"}
+head(mortality_tables$AM92$AM92_Ultimate)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(mortality_tables$AM92$AM92_Ultimate))
+```
+We join "q_ult" to the mortality table to the data frame by "attained age".
+```{r, results = "hide"}
+head(left_join(exposures_mort, mortality_tables$AM92$AM92_Ultimate, by = "attained_age"))
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(left_join(exposures_mort, select(mortality_tables$AM92$AM92_Ultimate, -table), by = "attained_age")))
+```
+
 ##Premium Pattern
-We assume that the user has dated transactions with a key that corresponds to the key in the record file. Some simulated transactions come with the package.
+
+We assume that the user has dated transactions with a key that corresponds to the key in the record file. A simulated transaction data frame "trans" comes with the package.
 ```{r, results = "hide"}
 head(trans)
 ```
