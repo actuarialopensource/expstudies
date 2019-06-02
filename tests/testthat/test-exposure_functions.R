@@ -55,6 +55,7 @@ old_record_mid <- data.frame(key = "A", start = as.Date("1800-06-15"), end = as.
 old_record_start <- data.frame(key = "A", start = as.Date("1800-01-01"), end = as.Date("2001-02-10"), stringsAsFactors = FALSE)
 
 test_that("lower_year argument works for truncation", {
+  expect_equal(nrow(addExposures(old_record_mid, type = "PY", lower_year = 2002)) == 0, TRUE)
   expect_equal(all.equal(addExposures(old_record_mid, type = "PY", lower_year = 2000), good_old_PY), TRUE)
   expect_equal(all.equal(addExposures(old_record_start, type = "PM", lower_year = 2000), good_old_PM), TRUE)
   expect_equal(all.equal(addExposures(old_record_mid, type = "PYCY", lower_year = 2000), good_old_PYCY), TRUE)

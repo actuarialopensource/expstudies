@@ -41,6 +41,17 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
     stop('Key is not unique')
   }
 
+  #Increment up the start interval to the year prior lower_year to reduce calculation size.
+  #Filtered later for an exact lower truncation. key_and_year increment is book-keeping
+  if(!is.null(lower_year)){
+    if(lower_year%%1 != 0) stop("lower_year must be an integer")
+    records <- records %>%
+      dplyr::mutate(year_increment = dplyr::if_else(lower_year - lubridate::year(start) >= 2,
+                                                    lower_year - lubridate::year(start) - 1, 0),
+                    start = start %m+% lubridate::years(year_increment))
+    key_and_year_increment <- records %>% dplyr::select(key, year_increment)
+  }
+
   #Load only the columns for the key, start, and end. Filter out start dates past end dates.
   mod_records <- records %>% dplyr::select(key, start, end) %>% dplyr::filter(start <= end)
   bad_count <- nrow(records) - nrow(mod_records)
@@ -50,17 +61,6 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
   }
   else if(bad_count > 0){
     warning(paste(bad_count, 'end dates before start dates will be removed', sep = " "))
-  }
-
-  #Increment up the start interval to the year prior lower_year to reduce calculation size.
-  #Filtered later for an exact lower truncation. key_and_year increment is book-keeping
-  if(!is.null(lower_year)){
-    if(lower_year%%1 != 0) stop("lower_year must be an integer")
-    mod_records <- mod_records %>%
-      dplyr::mutate(year_increment = dplyr::if_else(lower_year - lubridate::year(start) >= 2,
-                                                    lower_year - lubridate::year(start) - 1, 0),
-                    start = start %m+% lubridate::years(year_increment))
-    key_and_year_increment <- mod_records %>% dplyr::select(key, year_increment)
   }
 
   #We add a row for each year. Extra rows may be added, are filtered later.
