@@ -30,15 +30,21 @@ makeRange <- function(duration){
 #' @param type Creates policy year rows for the default type = "PY".
 #' Creates policy month rows for type = "PM".
 #' @param lower_year A lower year for truncation to reduce calculation time and output size.
+#' @param upper_year An upper year for truncation to reduce calculation time and output size.
 #' @return A data frame with multiple rows for each unique policy key. Each row represents a
 #' policy interval.
 #' @examples
 #' addExposures(records)
 #' @export
-addExposures <- function(records, type = "PY", lower_year = NULL){
+addExposures <- function(records, type = "PY", lower_year = NULL, upper_year = NULL){
   #Require a unique key.
   if(anyDuplicated(records$key)){
     stop('Key is not unique')
+  }
+
+  possible_types <- c("PY", "PM", "PYCY", "PYCM", "PMCY", "PMCM")
+  if (!(type %in% possible_types)){
+    stop('invalid type argument')
   }
 
   #Increment up the start interval to the year prior lower_year to reduce calculation size.
@@ -52,15 +58,23 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
     key_and_year_increment <- records %>% dplyr::select(key, year_increment)
   }
 
+  #Increment down the final interval to be within upper year.
+  if(!is.null(upper_year)){
+    if(upper_year%%1 != 0) stop("upper_year must be an integer")
+    #Bring to end of last full policy year for types PY, PM, otherwise to end of upper_year
+    records <- records %>%
+      dplyr::mutate(end = dplyr::case_when(
+      lubridate::year(end) <= upper_year ~ end,
+      type %in% c("PY", "PM") ~ end %m+% lubridate::years(-(lubridate::year(end) - upper_year)),
+      TRUE ~ lubridate::ceiling_date(end %m+% lubridate::years(-(lubridate::year(end) - upper_year)), unit = "year") - 1))
+  }
+
   #Load only the columns for the key, start, and end. Filter out start dates past end dates.
   mod_records <- records %>% dplyr::select(key, start, end) %>% dplyr::filter(start <= end)
   bad_count <- nrow(records) - nrow(mod_records)
 
   if(bad_count == nrow(records)){
-    stop('All records have end dates before start dates')
-  }
-  else if(bad_count > 0){
-    warning(paste(bad_count, 'end dates before start dates will be removed', sep = " "))
+    stop('All records have end dates before start dates, no exposures')
   }
 
   #We add a row for each year. Extra rows may be added, are filtered later.
@@ -164,7 +178,7 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
   } else if (type == "PMCM") {
     result <- formatPMCM()
   } else {
-    stop('!(type %in% c("PY", "PM", "PYCM", "PMCY", "PMCM"))')
+    stop('invalid type argument')
   }
 
   #key_and_year_increment comes back to join on the key and increment the years
@@ -177,3 +191,54 @@ addExposures <- function(records, type = "PY", lower_year = NULL){
 
   result
 }
+
+
+#' Estimate size of exposure data frame
+#'
+#' This function takes a records file and the same arguments as the addExposures function to
+#' estimate the size of the output created. The upper bound is pretty reasonable. The idea with this function
+#' is that it enables users to determine if they can reasonably perform an operation on their computer.
+#'
+#' @param records File containing a unique policy key with start and end dates.
+#' @param type Creates policy year rows for the default type = "PY".
+#' Creates policy month rows for type = "PM". Many other variations on this.
+#' @param lower_year A lower year for truncation to reduce calculation time and output size.
+#' @param upper_year An upper year for truncation to reduce calculation time and output size.
+#' @return An upper bound for the number of rows used in the calculation of an exposure frame.
+#' @examples
+#' addExposures(records)
+#' @export
+expSize <- function(records, type = "PY", lower_year = NULL, upper_year = NULL){
+
+  possible_types <- c("PY", "PM", "PYCY", "PYCM", "PMCY", "PMCM")
+  if (!(type %in% possible_types)){
+    stop('invalid type argument')
+  }
+
+  rows_per_year <- dplyr::case_when(
+    type == "PY" ~ 1,
+    type == "PM" ~ 12,
+    type == "PYCY" ~ 2,
+    type == "PYCM" ~ 13,
+    type == "PMCY" ~ 13,
+    type == "PMCM" ~ 24
+  )
+
+  records <- records %>% dplyr::mutate(max_year = lubridate::year(end),
+                                min_year = lubridate::year(start))
+  #modfy max_year to account for upper_year
+  if(!is.null(upper_year)){
+    records <- records %>% dplyr::mutate(max_year = ifelse(upper_year < max_year, upper_year, max_year))
+  }
+  #modify min_year to account for lower_year
+  if(!is.null(lower_year)){
+    records <- records %>% dplyr::mutate(min_year = ifelse(min_year < lower_year, lower_year - 1, min_year))
+  }
+
+  records %>%
+    dplyr::filter(max_year >= min_year) %>%
+    dplyr::mutate(years = max_year - min_year + 1) %>%
+    dplyr::summarise(row_bound = sum(years*rows_per_year)) %>% unlist()
+}
+
+

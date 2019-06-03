@@ -1,6 +1,12 @@
 #include <Rcpp.h>
 using namespace Rcpp;
-
+//' Find the correct interval/key combination for start intervals.
+//'
+//' @param exp_key sorted key column.
+//' @param start_int start_intervals that are are sorted within their keys
+//' @param end_int end_intervals that are are sorted because start_int is sorted.
+//' @param trans_key that must have a matching interval. This is guaranteed by the R code before calling findStart.
+//' @param trans_date sorted date column.
 // [[Rcpp::export]]
 DateVector findStart(CharacterVector exp_key, DateVector start_int,
                        DateVector end_int, CharacterVector trans_key, DateVector trans_date){

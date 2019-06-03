@@ -30,7 +30,7 @@ filter_trans <- function(exposures, trans){
 #' @examples
 #' addStart(exposures, trans)
 #' @export
-addStart <- function(exposures, trans){
+addStart <- function(trans, exposures){
   f_trans <- filter_trans(exposures, trans)
   f_trans <- f_trans %>% dplyr::arrange(key, trans_date)
 

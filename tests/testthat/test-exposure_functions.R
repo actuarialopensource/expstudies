@@ -17,8 +17,7 @@ two_records_one_late <- data.frame(key = c("A", "B"),
 
 test_that("Correct handling of end dates prior to start dates", {
   expect_error(addExposures(one_record_late_start), "All records have end dates before start dates")
-  expect_warning(late_records_PY <- addExposures(two_records_one_late))
-  expect_equal(all.equal(late_records_PY, good_PY), TRUE) })
+  expect_equal(all.equal(addExposures(two_records_one_late), good_PY), TRUE) })
 
 
 #A record where policy months/years won't end at the same time as calendar months/years.
