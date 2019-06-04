@@ -28,7 +28,7 @@ filter_trans <- function(exposures, trans){
 #' @return Modified transaction records that corresponding to an exposure interval, the interval start date
 #' is included.
 #' @examples
-#' addStart(exposures, trans)
+#' addStart(trans, exposures)
 #' @export
 addStart <- function(trans, exposures){
   f_trans <- filter_trans(exposures, trans)

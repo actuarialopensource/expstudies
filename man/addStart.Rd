@@ -22,5 +22,5 @@ exposure interval. This is useful for grouping by start date and key, aggregatin
 to the exposure rows. In this way premium pattern analysis can be performed.
 }
 \examples{
-addStart(exposures, trans)
+addStart(trans, exposures)
 }

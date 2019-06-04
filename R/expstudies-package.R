@@ -29,4 +29,4 @@ NULL
 
 utils::globalVariables(c("start", "end", "key", "dummy", "yrs_past_start", "start_int",
                          "end_int", "duration", "exposure", "policy_month", "trans_date",
-                         "year_increment", "max_year", "min_year"))
+                         "year_increment", "max_year", "min_year", "years"))

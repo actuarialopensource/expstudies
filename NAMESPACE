@@ -3,6 +3,7 @@
 export(addDays)
 export(addExposures)
 export(addStart)
+export(daySize)
 export(expSize)
 importFrom(Rcpp,sourceCpp)
 importFrom(lubridate,"%m+%")
