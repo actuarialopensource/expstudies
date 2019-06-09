@@ -9,33 +9,37 @@ using namespace Rcpp;
 //' @param trans_date sorted date column.
 // [[Rcpp::export]]
 DateVector findStart(CharacterVector exp_key, DateVector start_int,
-                       DateVector end_int, CharacterVector trans_key, DateVector trans_date){
-  /* We use exp_length to track if exposures are formatted incorrectly.
-   * We should never have trans not in our exposures because of the call to filter_trans. */
+                     DateVector end_int, CharacterVector trans_key, DateVector trans_date){
+  //Bounds for the loop
   int exp_length = exp_key.length();
-  //Used to iterate over trans and create vector length.
   int trans_length = trans_key.length();
-  //Initialize DateVector to store start dates in.
+  //To store the result
   DateVector out(trans_length);
-
-  /*Note that the sorting of the vectors prior to function call allows us to not double check exposures
-   * that we iterate over in the following loop.*/
+  //i is used to index the transactions, j for the exposures
   int i = 0, j = 0;
-  while(i < trans_length) {
-    /* If the transaction has a matching key and the transaction date is between the interval start and the interval end,
-     * then we have found the correct interval. We can then move to the next transaction.*/
-    if (trans_key[i] == exp_key[j] &&
-        trans_date[i] >= start_int[j] && trans_date[i] <= end_int[j]){
+  while((i < trans_length) & (j < exp_length)) {
+    /* Use the fact that we have already sorted the exposures and transactions.
+    * If the transaction is greater than the exposure move to the next exposure.
+    * If the exposure is greater than the transaction move to the next transaction.
+    * Othewise the exposure matches the transaction.
+    */
+    if (trans_key[i] > exp_key[j] || (trans_key[i] == exp_key[j] && trans_date[i] > end_int[j])){
+      j += 1;
+    } else if (trans_key[i] < exp_key[j] || (trans_key[i] == exp_key[j] && trans_date[i] < start_int[j])){
+      out[i] = NA_REAL;
+      i += 1;
+    } else {
       out[i] = start_int[j];
       i += 1;
-    } else { // If we aren't in the right interval move to the next interval.
-      j += 1;
-      if (j >= exp_length) {
-        stop("Transaction has no matching exposure, do not modify exposure frame intervals after creation"); //This shouldn't happen.
-      }
     }
   }
-//Return start dates.
+  // If we terminate after exhausing exposures the remaining transactions have no matches.
+  while(i < trans_length){
+    out[i] = NA_REAL;
+    i += 1;
+  }
+  // Return the start dates
   return out;
 }
+
 
