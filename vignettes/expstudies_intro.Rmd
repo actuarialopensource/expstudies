@@ -178,7 +178,7 @@ head(mortality_tables$AM92$AM92_Ultimate)
 ```{r, results = "asis", echo = FALSE}
 pander::pandoc.table(head(mortality_tables$AM92$AM92_Ultimate))
 ```
-We join "q_ult" to the mortality table to the data frame by "attained age".
+We join "q_ult" from the mortality table to the data frame by "attained age".
 ```{r, results = "hide"}
 head(left_join(exposures_mort, mortality_tables$AM92$AM92_Ultimate, by = "attained_age"))
 ```
