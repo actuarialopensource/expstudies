@@ -20,9 +20,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// makeDays
+DataFrame makeDays(CharacterVector record_key, DateVector record_start, IntegerVector record_days, int final_size);
+RcppExport SEXP _expstudies_makeDays(SEXP record_keySEXP, SEXP record_startSEXP, SEXP record_daysSEXP, SEXP final_sizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type record_key(record_keySEXP);
+    Rcpp::traits::input_parameter< DateVector >::type record_start(record_startSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type record_days(record_daysSEXP);
+    Rcpp::traits::input_parameter< int >::type final_size(final_sizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(makeDays(record_key, record_start, record_days, final_size));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_expstudies_findStart", (DL_FUNC) &_expstudies_findStart, 5},
+    {"_expstudies_makeDays", (DL_FUNC) &_expstudies_makeDays, 4},
     {NULL, NULL, 0}
 };
 

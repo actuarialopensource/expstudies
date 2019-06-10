@@ -227,3 +227,34 @@ good_old_PMCM <- data.frame(stringsAsFactors = FALSE,
               as.Date("2000-10-31"), as.Date("2000-11-30"), as.Date("2000-12-31"),
               as.Date("2001-01-31"), as.Date("2001-02-10")),
   exposure = c(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 10)/365.25)
+
+####################################################################################################
+
+all_days <- data.frame(
+  key = c("A", "A", "A", "B", "B", "B"),
+  date = c(as.Date("2000-01-01"), as.Date("2000-01-02"), as.Date("2000-01-03"),
+           as.Date("2001-03-31"), as.Date("2001-04-01"), as.Date("2001-04-02")),
+  stringsAsFactors = FALSE
+)
+
+lower_trunc_days <- data.frame(
+  key = c("A", "A", "B", "B", "B"),
+  date = c(as.Date("2000-01-02"), as.Date("2000-01-03"),
+           as.Date("2001-03-31"), as.Date("2001-04-01"), as.Date("2001-04-02")),
+  stringsAsFactors = FALSE
+)
+
+upper_trunc_days <- data.frame(
+  key = c("A", "A", "A"),
+  date = c(as.Date("2000-01-01"), as.Date("2000-01-02"), as.Date("2000-01-03")),
+  stringsAsFactors = FALSE
+)
+
+lower_upper_trunc <- data.frame(
+  key = c("A", "A"),
+  date = c(as.Date("2000-01-02"), as.Date("2000-01-03")),
+  stringsAsFactors = FALSE
+)
+
+
+

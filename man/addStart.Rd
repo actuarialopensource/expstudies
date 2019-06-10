@@ -4,12 +4,12 @@
 \alias{addStart}
 \title{Map Transaction Rows to Exposure Rows}
 \usage{
-addStart(exposures, trans)
+addStart(trans, exposures)
 }
 \arguments{
-\item{exposures}{Output from addExposures(records).}
-
 \item{trans}{Information we wish to assign to exposure intervals.}
+
+\item{exposures}{Output from addExposures(records).}
 }
 \value{
 Modified transaction records that corresponding to an exposure interval, the interval start date
@@ -22,5 +22,5 @@ exposure interval. This is useful for grouping by start date and key, aggregatin
 to the exposure rows. In this way premium pattern analysis can be performed.
 }
 \examples{
-addStart(exposures, trans)
+addStart(trans, exposures)
 }
