@@ -29,7 +29,7 @@ addExposures(records)
 ```{r, results = "asis", echo = FALSE}
 pander::pandoc.table(head(addExposures(records), 4))
 ```
-Go to the articles tab to read about other features like premium pattern, or monthly records.
+Go to the articles tab to read about other features like premium pattern analysis, or monthly exposures.
 
 
 
