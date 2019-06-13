@@ -1,4 +1,4 @@
-#' Map Transaction Rows to Exposure Rows
+#' Map transactions to exposure intervals
 #'
 #' This function takes in exposures and transactions and returns all transactions with a matching "key"
 #' and "trans_date" within an exposure interval and attaches the start date of the corresponding

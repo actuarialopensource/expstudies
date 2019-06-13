@@ -21,7 +21,7 @@ makeRange <- function(duration){
 }
 
 
-#' Create an Exposure Data Frame
+#' Create an exposure data frame
 #'
 #' This function takes a records file with unique policy identifiers in the column "key",
 #' exposure start dates in column "start" and exposure end dates in column "end".

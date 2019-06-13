@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Creating Exposure Intervals • expstudies</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Creating Exposure Intervals">
@@ -634,26 +634,24 @@
 </tbody>
 </table>
 </div>
-<div id="lower_year" class="section level4">
+<div id="lower_year-and-upper_year" class="section level4">
 <h4 class="hasAnchor">
-<a href="#lower_year" class="anchor"></a>lower_year</h4>
-<p>There is an argument in the addExposures function that allows for truncation by a lower year. Exposure rows will only be created if the start interval begins during or after the specified lower truncation year. This can dramatically reduce computation time and memory use depending on the structure of your data and the type of exposure rows you are creating.</p>
-<p>Policy month with lower truncation year:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_PM_<span class="dv">2019</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/addExposures.html">addExposures</a></span>(records, <span class="dt">type =</span> <span class="st">"PM"</span>, <span class="dt">lower_year =</span> <span class="dv">2019</span>)
-exposures_PM_<span class="dv">2019</span></code></pre></div>
+<a href="#lower_year-and-upper_year" class="anchor"></a>lower_year and upper_year</h4>
+<p>There are arguments in the addExposures function that allow for truncation by calendar year. Exposure rows will only be created if the interval lies entirely within the specified years. This can reduce computation time and memory use.</p>
+<p>Policy year with lower and upper truncation year:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">exposures_PY_2016_to_<span class="dv">2018</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/addExposures.html">addExposures</a></span>(records, <span class="dt">type =</span> <span class="st">"PY"</span>, <span class="dt">lower_year =</span> <span class="dv">2016</span>, <span class="dt">upper_year =</span> <span class="dv">2018</span>)
+exposures_PY_2016_to_<span class="dv">2018</span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="15%">
 <col width="15%">
-<col width="20%">
-<col width="17%">
-<col width="17%">
+<col width="18%">
+<col width="18%">
 <col width="13%">
 </colgroup>
 <thead><tr class="header">
 <th align="center">key</th>
 <th align="center">duration</th>
-<th align="center">policy_month</th>
 <th align="center">start_int</th>
 <th align="center">end_int</th>
 <th align="center">exposure</th>
@@ -661,59 +659,38 @@ exposures_PM_<span class="dv">2019</span></code></pre></div>
 <tbody>
 <tr class="odd">
 <td align="center">B10251C8</td>
-<td align="center">9</td>
-<td align="center">10</td>
-<td align="center">2019-01-10</td>
-<td align="center">2019-02-09</td>
-<td align="center">0.08487</td>
+<td align="center">7</td>
+<td align="center">2016-04-10</td>
+<td align="center">2017-04-09</td>
+<td align="center">0.9993</td>
 </tr>
 <tr class="even">
 <td align="center">B10251C8</td>
-<td align="center">9</td>
-<td align="center">11</td>
-<td align="center">2019-02-10</td>
-<td align="center">2019-03-09</td>
-<td align="center">0.07666</td>
+<td align="center">8</td>
+<td align="center">2017-04-10</td>
+<td align="center">2018-04-04</td>
+<td align="center">0.9856</td>
 </tr>
 <tr class="odd">
-<td align="center">B10251C8</td>
-<td align="center">9</td>
+<td align="center">D68554D5</td>
 <td align="center">12</td>
-<td align="center">2019-03-10</td>
-<td align="center">2019-04-04</td>
-<td align="center">0.07118</td>
+<td align="center">2016-01-01</td>
+<td align="center">2016-12-31</td>
+<td align="center">1.002</td>
 </tr>
 <tr class="even">
 <td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">1</td>
-<td align="center">2019-01-01</td>
-<td align="center">2019-01-31</td>
-<td align="center">0.08487</td>
+<td align="center">13</td>
+<td align="center">2017-01-01</td>
+<td align="center">2017-12-31</td>
+<td align="center">0.9993</td>
 </tr>
 <tr class="odd">
 <td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">2</td>
-<td align="center">2019-02-01</td>
-<td align="center">2019-02-28</td>
-<td align="center">0.07666</td>
-</tr>
-<tr class="even">
-<td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">3</td>
-<td align="center">2019-03-01</td>
-<td align="center">2019-03-31</td>
-<td align="center">0.08487</td>
-</tr>
-<tr class="odd">
-<td align="center">D68554D5</td>
-<td align="center">15</td>
-<td align="center">4</td>
-<td align="center">2019-04-01</td>
-<td align="center">2019-04-04</td>
-<td align="center">0.01095</td>
+<td align="center">14</td>
+<td align="center">2018-01-01</td>
+<td align="center">2018-04-04</td>
+<td align="center">0.2574</td>
 </tr>
 </tbody>
 </table>
@@ -799,7 +776,7 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 <div id="determine-output-size-before-calling-addexposures" class="section level3">
 <h3 class="hasAnchor">
 <a href="#determine-output-size-before-calling-addexposures" class="anchor"></a>Determine Output Size Before Calling addExposures()</h3>
-<p>We can estimate the size of a call to addExposures() by using expSize(). It doesn’t exactly detemine the size of the created data frame but provides an upper bound that should be useful for determining if a call to addExposures() will be problematic.</p>
+<p>We can estimate the size of a call to addExposures() by using expSize(). We shouldn’t try to create 100 million rows, so we can use this function to make sure we don’t.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/expSize.html">expSize</a></span>(records, <span class="dt">type =</span> <span class="st">"PY"</span>)</code></pre></div>
 <pre><code>## row_bound 
 ##        25</code></pre>

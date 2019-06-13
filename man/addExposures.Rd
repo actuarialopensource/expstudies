@@ -2,7 +2,7 @@
 % Please edit documentation in R/exposure_functions.R
 \name{addExposures}
 \alias{addExposures}
-\title{Create an Exposure Data Frame}
+\title{Create an exposure data frame}
 \usage{
 addExposures(records, type = "PY", lower_year = NULL,
   upper_year = NULL)
