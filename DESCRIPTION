@@ -1,6 +1,6 @@
 Package: expstudies
 Title: Calculate Exposures, Assign Records to Intervals
-Version: 0.0.4
+Version: 0.0.5
 Authors@R: 
     person(given = "Matthew", family = "Caseres", email = "matthewcaseres@outlook.com",
     role = c("aut", "cre"))
@@ -24,5 +24,6 @@ Suggests:
     pander,
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    tidyr
 VignetteBuilder: knitr

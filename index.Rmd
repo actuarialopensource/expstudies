@@ -1,0 +1,37 @@
+---
+title: "index"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## expstudies
+
+```{r include = FALSE}
+library(expstudies)
+library(dplyr)
+library(magrittr)
+library(pander)
+```
+
+The expstudies package transforms records with a start and end date into policy-intervals.
+```{r, results = FALSE}
+records
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(records)
+```
+```{r, results = FALSE}
+addExposures(records)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(addExposures(records), 4))
+```
+Go to the articles tab to read about other features like premium pattern, or monthly records.
+
+
+
+
+

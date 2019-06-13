@@ -20,3 +20,4 @@ to the input "duration" column so that there will be rows added for each whole
 number less than or equal to the duration. This is how many rows are created in the
 addExposures function.
 }
+\keyword{internal}

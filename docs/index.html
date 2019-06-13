@@ -21,7 +21,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-home">
+    <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">expstudies</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.5</span>
       </span>
     </div>
 
@@ -56,7 +56,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/expstudies_intro.html">How to use expstudies</a>
+      <a href="articles/creating_exposures.html">Creating Exposure Intervals</a>
+    </li>
+    <li>
+      <a href="articles/premium_pattern.html">Premium Pattern</a>
+    </li>
+    <li>
+      <a href="articles/rate_calculations.html">Mortality/Lapse Rate Calculations</a>
     </li>
   </ul>
 </li>
@@ -71,11 +77,96 @@
 
       
       </header><div class="row">
-  <div class="contents col-md-9">
-<div id="expstudies" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#expstudies" class="anchor"></a>expstudies</h1></div>
-<p>Use this package to work with policy data.</p>
+  <div class="col-md-9 contents">
+    
+
+    
+    
+<div id="expstudies" class="section level2">
+<h2 class="hasAnchor">
+<a href="#expstudies" class="anchor"></a>expstudies</h2>
+<p>The expstudies package transforms records with a start and end date into policy-intervals.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">records</code></pre></div>
+<table class="table table">
+<colgroup>
+<col width="15%">
+<col width="18%">
+<col width="18%">
+<col width="16%">
+<col width="11%">
+</colgroup>
+<thead><tr class="header">
+<th align="center">key</th>
+<th align="center">start</th>
+<th align="center">end</th>
+<th align="center">issue_age</th>
+<th align="center">gender</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">B10251C8</td>
+<td align="center">2010-04-10</td>
+<td align="center">2019-04-04</td>
+<td align="center">35</td>
+<td align="center">M</td>
+</tr>
+<tr class="even">
+<td align="center">D68554D5</td>
+<td align="center">2005-01-01</td>
+<td align="center">2019-04-04</td>
+<td align="center">30</td>
+<td align="center">F</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/addExposures.html">addExposures</a></span>(records)</code></pre></div>
+<table class="table table">
+<colgroup>
+<col width="15%">
+<col width="15%">
+<col width="18%">
+<col width="18%">
+<col width="13%">
+</colgroup>
+<thead><tr class="header">
+<th align="center">key</th>
+<th align="center">duration</th>
+<th align="center">start_int</th>
+<th align="center">end_int</th>
+<th align="center">exposure</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">B10251C8</td>
+<td align="center">1</td>
+<td align="center">2010-04-10</td>
+<td align="center">2011-04-09</td>
+<td align="center">0.9993</td>
+</tr>
+<tr class="even">
+<td align="center">B10251C8</td>
+<td align="center">2</td>
+<td align="center">2011-04-10</td>
+<td align="center">2012-04-09</td>
+<td align="center">1.002</td>
+</tr>
+<tr class="odd">
+<td align="center">B10251C8</td>
+<td align="center">3</td>
+<td align="center">2012-04-10</td>
+<td align="center">2013-04-09</td>
+<td align="center">0.9993</td>
+</tr>
+<tr class="even">
+<td align="center">B10251C8</td>
+<td align="center">4</td>
+<td align="center">2013-04-10</td>
+<td align="center">2014-04-09</td>
+<td align="center">0.9993</td>
+</tr>
+</tbody>
+</table>
+<p>Go to the articles tab to read about other features like premium pattern, or monthly records.</p>
 </div>
   </div>
 
@@ -100,8 +191,10 @@
 </ul>
 </div>
 
-  </div>
+      </div>
+
 </div>
+
 
       <footer><div class="copyright">
   <p>Developed by Matthew Caseres.</p>

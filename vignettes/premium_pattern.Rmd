@@ -1,0 +1,89 @@
+---
+title: "Premium Pattern"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{expstudies_intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r include = FALSE}
+library(expstudies)
+library(dplyr)
+library(magrittr)
+library(pander)
+library(tidyr)
+```
+
+Suppose we have some monthly exposures that we would like to add premium data to.
+```{r, results = "hide"}
+exposures_PM <- addExposures(records, type = "PM")
+head(exposures_PM)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_PM))
+```
+Simulated premium data "trans" comes with the package.
+```{r, results = "hide"}
+head(trans)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(trans))
+```
+
+The addStart function adds the start date of the appropriate exposure interval to the transactions. 
+```{r, results = "hide"}
+trans_with_interval <- addStart(trans, exposures_PM)
+head(trans_with_interval)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(trans_with_interval))
+```
+We can group and aggregate by key and start_int to get unique transaction rows corresponding to intervals in exposures_PM. 
+```{r, results = "hide"}
+trans_to_join <- trans_with_interval %>% group_by(start_int, key) %>% summarise(premium = sum(amt))
+head(trans_to_join)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(trans_to_join))
+```
+Then we can join this to the exposures using a left join without duplicating any exposures.
+```{r, results = "hide"}
+premium_study <- exposures_PM %>% left_join(trans_to_join, by = c("key", "start_int"))
+head(premium_study, 10)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(premium_study, 10))
+```
+Change the NA values resulting from the join to zeros using an if_else.
+```{r, results = "hide"}
+premium_study <- premium_study %>% mutate(premium = if_else(is.na(premium), 0, premium))
+head(premium_study, 10)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(premium_study, 10))
+```
+Now we are free to do any calculations we want. For a simple example we calculate the average premium in the first two policy months. Refer to the section on adding additional information for more creative policy splits. 
+```{r, results = "hide"}
+premium_study %>% filter(policy_month %in% c(1,2)) %>% group_by(policy_month) %>% summarise(avg_premium = mean(premium))
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(premium_study %>% filter(policy_month %in% c(1,2)) %>% group_by(policy_month) %>% summarise(avg_premium = mean(premium)))
+```
+###Other Uses for addStart
+Suppose we were interested in what the last premium paid by a policy was for some predictive analytics project. Again we left join the premium to the exposure frame.
+```{r, results = "hide"}
+previous_premium_unfilled <- exposures_PM %>% left_join(trans_to_join, by = c("key", "start_int"))
+head(previous_premium_unfilled)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(previous_premium_unfilled))
+```
+This time we fill in NA values with the previous paid premium instead of 0. The first interval is NA because there are no prior premiums.
+```{r, results = "hide"}
+previous_premium <- previous_premium_unfilled %>%
+tidyr::fill(premium, .direction = "down")
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(previous_premium))
+```
+Data manipulations similar to this can be used to engineer features for anything varying with time: account values, guarantees, planned premiums, etc...

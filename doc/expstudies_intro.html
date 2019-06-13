@@ -1208,7 +1208,7 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 </tr>
 </tbody>
 </table>
-<p>We join “q_ult” to the mortality table to the data frame by “attained age”.</p>
+<p>We join “q_ult” from the mortality table to the data frame by “attained age”.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(<span class="kw">left_join</span>(exposures_mort, mortality_tables<span class="op">$</span>AM92<span class="op">$</span>AM92_Ultimate, <span class="dt">by =</span> <span class="st">&quot;attained_age&quot;</span>))</code></pre></div>
 <table style="width:100%;">
 <caption>Table continues below</caption>
@@ -1396,7 +1396,7 @@ exposures_PYCM_<span class="dv">2019</span></code></pre></div>
 </tbody>
 </table>
 <p>The addStart function adds the start date of the appropriate exposure interval to the transactions.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">trans_with_interval &lt;-<span class="st"> </span><span class="kw">addStart</span>(exposures_PM, trans)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">trans_with_interval &lt;-<span class="st"> </span><span class="kw">addStart</span>(trans, exposures_PM)
 <span class="kw">head</span>(trans_with_interval)</code></pre></div>
 <table style="width:58%;">
 <colgroup>

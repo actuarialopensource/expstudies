@@ -55,3 +55,5 @@ daySize <- function(records, min_date = NULL, max_date = NULL){
     dplyr::summarise(num_rows = sum(end - start + 1)) %>%
     unlist()
 }
+
+

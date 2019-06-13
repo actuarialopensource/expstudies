@@ -178,7 +178,7 @@ head(mortality_tables$AM92$AM92_Ultimate)
 ```{r, results = "asis", echo = FALSE}
 pander::pandoc.table(head(mortality_tables$AM92$AM92_Ultimate))
 ```
-We join "q_ult" to the mortality table to the data frame by "attained age".
+We join "q_ult" from the mortality table to the data frame by "attained age".
 ```{r, results = "hide"}
 head(left_join(exposures_mort, mortality_tables$AM92$AM92_Ultimate, by = "attained_age"))
 ```
@@ -197,7 +197,7 @@ pander::pandoc.table(head(trans))
 ```
 The addStart function adds the start date of the appropriate exposure interval to the transactions. 
 ```{r, results = "hide"}
-trans_with_interval <- addStart(exposures_PM, trans)
+trans_with_interval <- addStart(trans, exposures_PM)
 head(trans_with_interval)
 ```
 ```{r, results = "asis", echo = FALSE}

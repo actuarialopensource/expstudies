@@ -9,6 +9,7 @@
 #'
 #' @param duration The vector containing whole numbers that will be joined to.
 #' @return A data frame that can be joined to the original vector by = c("duration" = "join_by").
+#' @keywords internal
 #'
 makeRange <- function(duration){
   join_by = data.frame(join_by = 0:max(duration), dummy = TRUE)

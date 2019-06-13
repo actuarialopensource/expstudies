@@ -1,0 +1,156 @@
+---
+title: "Creating Exposure Intervals"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{expstudies_intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r include = FALSE}
+library(expstudies)
+library(dplyr)
+library(magrittr)
+library(pander)
+```
+
+Synthetic data called "records" is included in the package. To make an exposure frame the data must have "key", "start", and "end" columns with unique values in the key column.
+```{r, results = "hide"}
+expstudies::records
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(records)
+```
+The addExposures function creates rows representing exposures between the start and end date with calculated exposures. By default exposure rows are created for each policy year.
+```{r, results = "hide"}
+exposures <- addExposures(records)
+head(exposures)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures))
+```
+One exposure unit is 365.25 days so the exposure column will be either slightly above or below 1. Giving days different weights depending on if they are in a leap year or not yields higher mortality rates for leap years when mortality is constant which is not desirable.
+
+###addExposures() arguments 
+
+####type
+
+There are several options available for exposure calculations. For example, we can create exposure rows by policy month.
+
+```{r, results = "hide"}
+exposures_PM <- addExposures(records, type = "PM")
+head(exposures_PM)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_PM))
+```
+
+The policy year and policy month options only do policy anniversary studies because exposure intervals may cross calendar years. There are options for creating exposure rows that do not cross calendar years or calendar months to allow for calendar year or calendar month studies.
+
+Policy year with calendar year:
+
+```{r, results = "hide"}
+exposures_PYCY <- addExposures(records, type = "PYCY")
+head(exposures_PYCY)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_PYCY))
+```
+
+Policy year with calendar month:
+
+```{r, results = "hide"}
+exposures_PYCM <- addExposures(records, type = "PYCM")
+head(exposures_PYCM, n = 15)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_PYCM, n = 15))
+```
+
+Policy month with calendar year:
+
+```{r, results = "hide"}
+exposures_PYCM <- addExposures(records, type = "PMCY")
+head(exposures_PYCM, n = 11)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_PYCM, n = 11))
+```
+
+Policy month with calendar month:
+
+```{r, results = "hide"}
+exposures_PMCM <- addExposures(records, type = "PMCM")
+head(exposures_PMCM)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_PMCM))
+```
+
+####lower_year and upper_year
+
+There are arguments in the addExposures function that allow for truncation by calendar year. Exposure rows will only be created if the interval lies entirely within the specified years. This can reduce computation time and memory use. 
+
+Policy year with lower and upper truncation year:
+```{r, results = "hide"}
+exposures_PY_2016_to_2018 <- addExposures(records, type = "PY", lower_year = 2016, upper_year = 2018)
+exposures_PY_2016_to_2018
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(exposures_PY_2016_to_2018)
+```
+
+Policy year with calendar month and lower truncation year:
+```{r, results = "hide"}
+exposures_PYCM_2019 <- addExposures(records, type = "PYCM", lower_year = 2019)
+exposures_PYCM_2019
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(exposures_PYCM_2019)
+```
+
+###Determine Output Size Before Calling addExposures()
+
+We can estimate the size of a call to addExposures() by using expSize(). We shouldn't try to create 100 million rows, so we can use this function to make sure we don't.
+```{r}
+expSize(records, type = "PY")
+```
+expSize() takes the same arguments as addExposures().
+```{r}
+expSize(records, type = "PMCM", lower_year = 2015, upper_year = 2017)
+```
+
+###Adding additional information to the calculated exposures
+
+We can add additional information by joining our original records to the created exposures by the key. Below we join the gender and issue age from our original record to the exposure frame and calculate the attained age.
+```{r, results = "hide"}
+exposures_mod <- exposures %>% inner_join(select(records, key, issue_age, gender), by = "key") %>%
+  mutate(attained_age = issue_age + duration - 1)
+head(exposures_mod)
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(exposures_mod), split.table = Inf)
+```
+
+###Making Daily Exposures
+You can create a row for each policy day in an interval using the addDays() function.
+```{r, results = "hide"}
+head(addDays(records))
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(head(addDays(records)))
+```
+There are options for lower and upper truncation dates
+```{r, results = "hide"}
+addDays(records, min_date = as.Date("2018-10-10"), max_date = as.Date("2018-10-12"))
+```
+```{r, results = "asis", echo = FALSE}
+pander::pandoc.table(addDays(records, min_date = as.Date("2018-10-10"), max_date = as.Date("2018-10-12")))
+```
+You can determine the size of the ouput without creating the output using the daySize() function.
+```{r}
+daySize(records, min_date = as.Date("2018-10-10"), max_date = as.Date("2018-10-12"))
+```
+
+
+
