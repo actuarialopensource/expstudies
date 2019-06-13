@@ -126,7 +126,7 @@ head(trans)
 pander::pandoc.table(head(trans))
 
 ## ---- results = "hide"---------------------------------------------------
-trans_with_interval <- addStart(exposures_PM, trans)
+trans_with_interval <- addStart(trans, exposures_PM)
 head(trans_with_interval)
 
 ## ---- results = "asis", echo = FALSE-------------------------------------

@@ -2,7 +2,7 @@
 % Please edit documentation in R/transaction_functions.R
 \name{addStart}
 \alias{addStart}
-\title{Map Transaction Rows to Exposure Rows}
+\title{Map transactions to exposure intervals}
 \usage{
 addStart(trans, exposures)
 }

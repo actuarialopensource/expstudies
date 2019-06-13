@@ -9,6 +9,7 @@
 #'
 #' @param duration The vector containing whole numbers that will be joined to.
 #' @return A data frame that can be joined to the original vector by = c("duration" = "join_by").
+#' @keywords internal
 #'
 makeRange <- function(duration){
   join_by = data.frame(join_by = 0:max(duration), dummy = TRUE)
@@ -20,7 +21,7 @@ makeRange <- function(duration){
 }
 
 
-#' Create an Exposure Data Frame
+#' Create an exposure data frame
 #'
 #' This function takes a records file with unique policy identifiers in the column "key",
 #' exposure start dates in column "start" and exposure end dates in column "end".

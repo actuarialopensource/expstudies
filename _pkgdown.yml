@@ -1,0 +1,33 @@
+destination: docs
+
+template:
+  params:
+    bootswatch: cosmo
+reference:
+- title: Create Exposure Intervals
+  desc: ~
+  contents:
+  - '`addExposures`'
+  - '`expSize`'
+- title: Create Daily Observations
+  desc: ~
+  contents:
+  - '`addDays`'
+  - '`daySize`'
+- title: Allocate Transactions
+  desc: ~
+  contents:
+  - '`addStart`'
+- title: Included Data
+  desc: ~
+  contents:
+  - '`records`'
+  - '`trans`'
+  - '`exposures`'
+  - '`mortality_tables`'
+
+
+
+
+
+

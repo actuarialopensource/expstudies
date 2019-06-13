@@ -2,5 +2,7 @@ pandoc: 1.19.2.1
 pkgdown: 1.3.0
 pkgdown_sha: ~
 articles:
-  expstudies_intro: expstudies_intro.html
+  creating_exposures: creating_exposures.html
+  premium_pattern: premium_pattern.html
+  rate_calculations: rate_calculations.html
 
