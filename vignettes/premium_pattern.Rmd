@@ -2,7 +2,7 @@
 title: "Premium Pattern"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{expstudies_intro}
+  %\VignetteIndexEntry{premium_pattern}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

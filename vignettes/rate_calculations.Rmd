@@ -2,7 +2,7 @@
 title: "Mortality/Lapse Rate Calculations"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{expstudies_intro}
+  %\VignetteIndexEntry{rate_calculations}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -2,7 +2,7 @@
 title: "Creating Exposure Intervals"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{expstudies_intro}
+  %\VignetteIndexEntry{creating_exposures}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
