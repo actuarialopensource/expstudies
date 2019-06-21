@@ -85,7 +85,23 @@
 <div id="expstudies" class="section level2">
 <h2 class="hasAnchor">
 <a href="#expstudies" class="anchor"></a>expstudies</h2>
-<p>The expstudies package transforms records with a start and end date into policy-intervals.</p>
+<hr>
+<p>There is an opportunity to build actuarial tools compatible with data using the mortality data format from VM-51 Appendix 4. The expstudies package provides a framework for working with policy data containing a unique policy key with start and end dates. Compute-intensive algorithms are implemented in Rcpp/C++ for high performance.</p>
+</div>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
+<p>The latest stable version can be installed from CRAN:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">'expstudies'</span>)</code></pre></div>
+<p>The latest development version can be installed from github:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#install.packages("devtools")</span>
+devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">'ActuarialAnalyst/expstudies'</span>)</code></pre></div>
+</div>
+<div id="expstudies-example" class="section level2">
+<h2 class="hasAnchor">
+<a href="#expstudies-example" class="anchor"></a>expstudies Example</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(expstudies)</code></pre></div>
+<p>The expstudies package takes records with a start and end date -</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">records</code></pre></div>
 <table class="table table">
 <colgroup>
@@ -119,6 +135,7 @@
 </tr>
 </tbody>
 </table>
+<p>and transforms them into policy intervals.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/addExposures.html">addExposures</a></span>(records)</code></pre></div>
 <table class="table table">
 <colgroup>
@@ -166,7 +183,7 @@
 </tr>
 </tbody>
 </table>
-<p>Go to the articles tab to read about other features like premium pattern analysis, or monthly exposures.</p>
+<p>Much more is possible with the package. Read about premium pattern, exact calendar years, and other topics in the articles tab. I would start by reading the article on “Creating Exposure Intervals”.</p>
 </div>
   </div>
 

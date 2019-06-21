@@ -9,28 +9,43 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## expstudies
 
-```{r include = FALSE}
-library(expstudies)
-library(dplyr)
-library(magrittr)
-library(pander)
+***
+
+There is an opportunity to build widely useful actuarial tools compatible with the mortality data format from VM-51 Appendix 4. The expstudies package provides a framework for working with policy data containing a unique policy key with start and end dates. Compute-intensive algorithms are implemented in Rcpp/C++ for high performance.
+
+## Installation
+The latest stable version can be installed from CRAN:
+```{r eval = FALSE}
+install.packages('expstudies')
+```
+The latest development version can be installed from github:
+```{r eval = FALSE}
+#install.packages("devtools")
+devtools::install_github('ActuarialAnalyst/expstudies')
 ```
 
-The expstudies package transforms records with a start and end date into policy-intervals.
+##expstudies Example
+```{r include = FALSE}
+library(pander)
+```
+```{r}
+library(expstudies)
+```
+The expstudies package takes records with a start and end date - 
 ```{r, results = FALSE}
 records
 ```
 ```{r, results = "asis", echo = FALSE}
 pander::pandoc.table(records)
 ```
+and transforms them into policy intervals.
 ```{r, results = FALSE}
 addExposures(records)
 ```
 ```{r, results = "asis", echo = FALSE}
 pander::pandoc.table(head(addExposures(records), 4))
 ```
-Go to the articles tab to read about other features like premium pattern analysis, or monthly exposures.
-
+Much more is possible with the package. Read about premium pattern, exact calendar years, and other topics in the articles tab. I would start by reading the article on "Creating Exposure Intervals".
 
 
 
