@@ -29,7 +29,7 @@ head(exposures)
 ```{r, results = "asis", echo = FALSE}
 pander::pandoc.table(head(exposures))
 ```
-One exposure unit is 365.25 days so the exposure column will be either slightly above or below 1. Giving days different weights depending on if they are in a leap year or not yields higher mortality rates for leap years when mortality is constant which is not desirable.
+One exposure unit is 365.25 days so the exposure column will be either slightly above or below 1. This is subject to change as we work with experienced actuaries to come up with the best possible implementation.
 
 ###addExposures() arguments 
 
