@@ -48,6 +48,11 @@ addExposures <- function(records, type = "PY", lower_year = NULL, upper_year = N
     stop('invalid type argument')
   }
 
+  # Pull out variables not needed for exposure calculations and store in order
+  # to reattach them later via the unique key
+  extra_vars <- records %>%
+    dplyr::select(-c(start, end))
+
   #Increment up the start interval to the year prior lower_year to reduce calculation size.
   #Filtered later for an exact lower truncation. key_and_year increment is book-keeping
   if(!is.null(lower_year)){
@@ -189,6 +194,10 @@ addExposures <- function(records, type = "PY", lower_year = NULL, upper_year = N
       dplyr::select(-year_increment) %>%
       dplyr::filter(lubridate::year(start_int) >= lower_year)
   }
+
+  # Add on the extra variables we are carrying through the exposure calculation
+  result <- result %>%
+    dplyr::left_join(extra_vars, by = "key")
 
   result
 }
