@@ -61,3 +61,13 @@ test_that("lower_year argument works for truncation", {
   expect_equal(all.equal(addExposures(old_record_start, type = "PYCM", lower_year = 2000), good_old_PYCM), TRUE)
   expect_equal(all.equal(addExposures(old_record_start, type = "PMCY", lower_year = 2000), good_old_PMCY), TRUE)
   expect_equal(all.equal(addExposures(old_record_start, type = "PMCM", lower_year = 2000), good_old_PMCM), TRUE)})
+
+test_that("Pulling variables through addExposures works", {
+  expect_equal(addExposures(records)$gender[1:9], rep("M", 9))
+  expect_equal(addExposures(records)$gender[10:18], rep("F", 9))
+  expect_equal(addExposures(records)$issue_age[1:9], rep(35, 9))
+  expect_equal(addExposures(records)$issue_age[10:18], rep(30, 9))
+  expect_equal("gender" %in%    colnames(addExposures(records, keep_extra_cols = FALSE)), FALSE)
+  expect_equal("issue_age" %in% colnames(addExposures(records, keep_extra_cols = FALSE)), FALSE)
+})
+
