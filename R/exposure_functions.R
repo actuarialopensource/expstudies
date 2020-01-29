@@ -37,7 +37,8 @@ makeRange <- function(duration){
 #' @examples
 #' addExposures(records)
 #' @export
-addExposures <- function(records, type = "PY", lower_year = NULL, upper_year = NULL){
+addExposures <- function(records, type = "PY", lower_year = NULL, upper_year = NULL,
+                         keep_extra_cols = TRUE){
   #Require a unique key.
   if(anyDuplicated(records$key)){
     stop('Key is not unique')
@@ -50,8 +51,10 @@ addExposures <- function(records, type = "PY", lower_year = NULL, upper_year = N
 
   # Pull out variables not needed for exposure calculations and store in order
   # to reattach them later via the unique key
-  extra_vars <- records %>%
-    dplyr::select(-c(start, end))
+  if(keep_extra_cols) {
+    extra_vars <- records %>%
+      dplyr::select(-c(start, end))
+  }
 
   #Increment up the start interval to the year prior lower_year to reduce calculation size.
   #Filtered later for an exact lower truncation. key_and_year increment is book-keeping
@@ -196,8 +199,10 @@ addExposures <- function(records, type = "PY", lower_year = NULL, upper_year = N
   }
 
   # Add on the extra variables we are carrying through the exposure calculation
-  result <- result %>%
-    dplyr::left_join(extra_vars, by = "key")
+  if(keep_extra_cols) {
+    result <- result %>%
+      dplyr::left_join(extra_vars, by = "key")
+  }
 
   result
 }
