@@ -37,7 +37,20 @@ makeRange <- function(duration){
 #' @examples
 #' addExposures(records)
 #' @export
-addExposures <- function(records, type = "PY", lower_year = NULL, upper_year = NULL){
+addExposures <- function(records, start_var = start, end_var = end,
+                         key_var = key, type = "PY", lower_year = NULL,
+                         upper_year = NULL, keep_extra_cols = TRUE) {
+  start_var = enquo(start_var)
+  end_var = enquo(end_var)
+  key_var = enquo(key_var)
+
+  # Rename user supplied names to start/end
+  # See ?rlang::`!!` for documentation on tidy evaluation
+  records <- records %>%
+    dplyr::mutate(start = !!start_var,
+                  end = !!end_var,
+                  key = !!key_var)
+
   #Require a unique key.
   if(anyDuplicated(records$key)){
     stop('Key is not unique')
@@ -46,6 +59,13 @@ addExposures <- function(records, type = "PY", lower_year = NULL, upper_year = N
   possible_types <- c("PY", "PM", "PYCY", "PYCM", "PMCY", "PMCM")
   if (!(type %in% possible_types)){
     stop('invalid type argument')
+  }
+
+  # Pull out variables not needed for exposure calculations and store in order
+  # to reattach them later via the unique key
+  if(keep_extra_cols) {
+    extra_vars <- records %>%
+      dplyr::select(-c(start, end))
   }
 
   #Increment up the start interval to the year prior lower_year to reduce calculation size.
@@ -189,6 +209,17 @@ addExposures <- function(records, type = "PY", lower_year = NULL, upper_year = N
       dplyr::select(-year_increment) %>%
       dplyr::filter(lubridate::year(start_int) >= lower_year)
   }
+
+  # Add on the extra variables we are carrying through the exposure calculation
+  if(keep_extra_cols) {
+    result <- result %>%
+      dplyr::left_join(extra_vars, by = "key")
+  }
+
+  # Rename key to original name
+  #result <- result %>%
+  #  mutate(sym(key_var) = key) %>%
+  #  select(-key)
 
   result
 }
