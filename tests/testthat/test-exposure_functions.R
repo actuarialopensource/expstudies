@@ -17,7 +17,8 @@ two_records_one_late <- data.frame(key = c("A", "B"),
 
 test_that("Correct handling of end dates prior to start dates", {
   expect_error(addExposures(one_record_late_start), "All records have end dates before start dates")
-  expect_equal(all.equal(addExposures(two_records_one_late), good_PY), TRUE) })
+  expect_equivalent(addExposures(two_records_one_late), good_PY)
+})
 
 
 #A record where policy months/years won't end at the same time as calendar months/years.
@@ -27,26 +28,32 @@ record_start <- data.frame(key = "A", start = as.Date("2000-01-01"), end = as.Da
 
 #Test all of the functions against the expected output in helper_data.R
 test_that("Policy year exposure calculation works", {
-  expect_equal(all.equal(addExposures(record_start, type = "PY"), good_PY), TRUE) })
+  expect_equivalent(addExposures(record_start, type = "PY"), good_PY)
+})
 
 test_that("Policy month exposure calculation works", {
-  expect_equal(all.equal(addExposures(record_start, type = "PM"), good_PM), TRUE) })
+  expect_equivalent(addExposures(record_start, type = "PM"), good_PM)
+})
 
 test_that("Policy year with calendar year exposure calculation works, mid and start", {
-  expect_equal(all.equal(addExposures(record_mid, type = "PYCY"), good_PYCY_mid), TRUE)
-  expect_equal(all.equal(addExposures(record_start, type = "PYCY"), good_PYCY_start), TRUE)})
+  expect_equivalent(addExposures(record_mid, type = "PYCY"), good_PYCY_mid)
+  expect_equivalent(addExposures(record_start, type = "PYCY"), good_PYCY_start)
+})
 
 test_that("Policy year with calendar month exposure calculation works, mid and start", {
-  expect_equal(all.equal(addExposures(record_mid, type = "PYCM"), good_PYCM_mid), TRUE)
-  expect_equal(all.equal(addExposures(record_start, type = "PYCM"), good_PYCM_start), TRUE)})
+  expect_equivalent(addExposures(record_mid, type = "PYCM"), good_PYCM_mid)
+  expect_equivalent(addExposures(record_start, type = "PYCM"), good_PYCM_start)
+})
 
 test_that("Policy month with calendar year exposure calculation works, mid and start", {
-  expect_equal(all.equal(addExposures(record_mid, type = "PMCY"), good_PMCY_mid), TRUE)
-  expect_equal(all.equal(addExposures(record_start, type = "PMCY"), good_PMCY_start), TRUE)})
+  expect_equivalent(addExposures(record_mid, type = "PMCY"), good_PMCY_mid)
+  expect_equivalent(addExposures(record_start, type = "PMCY"), good_PMCY_start)
+})
 
 test_that("Policy month with calendar month exposure calculation works, mid and start", {
-  expect_equal(all.equal(addExposures(record_mid, type = "PMCM"), good_PMCM_mid), TRUE)
-  expect_equal(all.equal(addExposures(record_start, type = "PMCM"), good_PMCM_start), TRUE)})
+  expect_equivalent(addExposures(record_mid, type = "PMCM"), good_PMCM_mid)
+  expect_equivalent(addExposures(record_start, type = "PMCM"), good_PMCM_start)
+})
 
 
 #Very old policies for testing the lower truncation year functionality.
@@ -54,10 +61,11 @@ old_record_mid <- data.frame(key = "A", start = as.Date("1800-06-15"), end = as.
 old_record_start <- data.frame(key = "A", start = as.Date("1800-01-01"), end = as.Date("2001-02-10"), stringsAsFactors = FALSE)
 
 test_that("lower_year argument works for truncation", {
-  expect_equal(nrow(addExposures(old_record_mid, type = "PY", lower_year = 2002)) == 0, TRUE)
-  expect_equal(all.equal(addExposures(old_record_mid, type = "PY", lower_year = 2000), good_old_PY), TRUE)
-  expect_equal(all.equal(addExposures(old_record_start, type = "PM", lower_year = 2000), good_old_PM), TRUE)
-  expect_equal(all.equal(addExposures(old_record_mid, type = "PYCY", lower_year = 2000), good_old_PYCY), TRUE)
-  expect_equal(all.equal(addExposures(old_record_start, type = "PYCM", lower_year = 2000), good_old_PYCM), TRUE)
-  expect_equal(all.equal(addExposures(old_record_start, type = "PMCY", lower_year = 2000), good_old_PMCY), TRUE)
-  expect_equal(all.equal(addExposures(old_record_start, type = "PMCM", lower_year = 2000), good_old_PMCM), TRUE)})
+  expect_equal(nrow(addExposures(old_record_mid, type = "PY", lower_year = 2002)), 0)
+  expect_equivalent(addExposures(old_record_mid, type = "PY", lower_year = 2000), good_old_PY)
+  expect_equivalent(addExposures(old_record_start, type = "PM", lower_year = 2000), good_old_PM)
+  expect_equivalent(addExposures(old_record_mid, type = "PYCY", lower_year = 2000), good_old_PYCY)
+  expect_equivalent(addExposures(old_record_start, type = "PYCM", lower_year = 2000), good_old_PYCM)
+  expect_equivalent(addExposures(old_record_start, type = "PMCY", lower_year = 2000), good_old_PMCY)
+  expect_equivalent(addExposures(old_record_start, type = "PMCM", lower_year = 2000), good_old_PMCM)
+})
