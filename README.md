@@ -1,5 +1,5 @@
 # expstudies
 
-Use this package to work with policy data.
+I think Julia has more promise than R and should become the official language of actuarial science for its high performance capabilities. 
 
-The documentation is at https://MatthewCaseres.github.io/expstudies/
+This package is deprecated in favor of - https://github.com/JuliaActuary/ExperienceAnalysis.jl
